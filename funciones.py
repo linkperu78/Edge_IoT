@@ -1,4 +1,7 @@
 import time
+import json
+import os
+
 
 class tag_config:
     def __init__(self, tag_name, init_byte, len_byte, scale, offset):
@@ -16,13 +19,27 @@ class tag_config:
         return int(temp_hex,16)*self.scale + self.offset
     
     def values_to_pub(self, array_hexadecimal):
-        return self.get_value_from_can(array_hexadecimal), self.tag_name
+        array = [self.get_value_from_can(array_hexadecimal), self.tag_name]
+        return array
     
 class tag_config_bits:
-    def __init__(self, tag_name, init_bit, len_bit):
+    def __init__(self, tag_name, init_bit, len_bit,dictionary):
         self.tag_name   = tag_name
         self.init_byte  = init_bit
         self.len_byte   = len_bit
+        self.dict       = dictionary
+    def values_to_pub(self, hex_array):
+        hex_value = ""
+        for i in range(len(hex_array)):
+            hex_value += hex_array[i]
+        bin_value = bin(int(hex_value,16))
+        bin_value = str(bin_value)[2:]
+        int_byte = int(self.init_byte)
+        dot_byte = (self.init_byte - int_byte)*10
+        real_bit = int(int_byte *8 + dot_byte) 
+        k_bin = bin_value[real_bit-1:real_bit-1+self.len_byte]
+        pos_dict = int(k_bin,2)
+        return self.dict[pos_dict]
 
 # Diccionario para DATOS SALUD
                     # tag_config("TAG", StartByte, LenByte, Scale, Offset)
@@ -53,11 +70,21 @@ id_can_datos = {"f004" : {  tag_config("RPM",4,2,0.125,0),            # 190/
                             tag_config("TLubricante",3,2,0.03125,-273),      # 175/
                             tag_config("TRefrigerante",1,1,1,-40)     # 110/
                         },
-                "fee4": {   tag_config_bits("EMotor",5.7,2)     # 1107/
-                        },
+                "fee4": {   tag_config_bits("EMotor",5.7,2,["Inactive","Active","Error","Not Available"])     
+                        },                                             # 1107/
                 "fef2": {   tag_config("QCombustible",1,2,0.05,0)      # 183/
                         },
+                "fee5": {   tag_config("Horometro",1,4,0.05,0)      # 247/
+                        },
                 }
+
+def save_data(data, filename):
+    file_exists = os.path.isfile(filename)
+
+    with open(filename, 'a') as file:
+        if file_exists:
+            file.write(',')
+        json.dump(data, file)
 
 
 

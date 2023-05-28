@@ -8,7 +8,7 @@ def create_app():
 
     db.init_app(app)
 
-    @app.route('/timeseries_data')
+    @app.route('/')
     def timeseries_data():
         timeseries_data = Data.query.all()
         return jsonify([d.to_dict() for d in timeseries_data])
@@ -18,5 +18,5 @@ def create_app():
 
 app = create_app()
 
-#if __name__ == '__main__':
-    #app.run()
+if __name__ == '__main__':
+    app.run()
