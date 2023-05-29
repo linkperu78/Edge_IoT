@@ -30,3 +30,4 @@ check_tables.py
 delete_tables.py
 generate_data.py
 test_insertion.py
+create_tabla.py
