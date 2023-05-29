@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine, inspect
 from sqlalchemy.orm import sessionmaker
+import time
 
 # Create a SQLAlchemy engine
 engine = create_engine('sqlite:///instance/dato.db')
