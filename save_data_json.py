@@ -1,18 +1,21 @@
-import funciones as d
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.exc import SQLAlchemyError
+from models import Salud as Data
 from datetime import datetime as date
 import time
-import can
+import funciones as d
 import json
+#import can
 
-
-example_input   = "Timestamp: 1671221642.857629    ID: 18fee900    X                DLC:  8    ff ff ff ff 36 02 00 00     Channel: can0"
+import generate_data as g
 
 
 time_canbus = "0"
 id_canbus = ""
 value_canbus = 0
 
-can0 = can.interface.Bus(channel = 'can0', bustype = 'socketcan_native')
+#can0 = can.interface.Bus(channel = 'can0', bustype = 'socketcan_native')
 
 def get_data_canbus(msg_canbus):
     data_canbus_str = []
@@ -39,16 +42,74 @@ def get_data_canbus(msg_canbus):
         i += 1
     return [pos_time,pos_id,data_canbus_str]
 
-a = d.id_can_datos
+def connect_to_db(db_uri):
+    engine = create_engine(db_uri)
+    Session = sessionmaker(bind=engine)
+    return Session()
 
+def insert_data(P_value, I_value, F_value, session):
+    new_data = Data(P=P_value, I=I_value, F=F_value)
+    session.add(new_data)
+    try:
+        session.commit()
+    except SQLAlchemyError as e:
+        session.rollback()
+        print("Error occurred:", e)
+        return None
+    #return new_data
+
+a = d.id_can_datos
 name_file = date.now().strftime("%m_%d_%H_%M")
 print(name_file)
-
 file_json_path = "json_data/" + name_file + ".json"
+time_actual = time.time()
+# Database URI
+db_uri = 'sqlite:///instance/dato.db'
+
+# Creating a new session
+session = connect_to_db(db_uri)
 
 while True:
-    dato = can0.recv(2.0)
-    #dato = example_input
+    actual_timestamp = time.time()
+    time_elapse = int(actual_timestamp - time_actual)
+    if(time_elapse == 0):
+        time.sleep(1)
+        continue
+    print(f"- Tiempo transcurrido: {time_elapse}")
+    for msg in g.generar_data(time_elapse):
+        timestamp,id_tag,data_str = get_data_canbus(msg)
+        timestamp = actual_timestamp
+        if id_tag in a:
+            objetos = a[id_tag]
+        for obj in objetos:
+            resultado = [str(timestamp)]
+            m = obj.values_to_pub(data_str)
+            resultado = resultado + m
+            json_data = {
+                "F": resultado[0],
+                "P": resultado[1],
+                "I": resultado[2]
+            }
+            d.save_data(json_data,file_json_path)
+            insert_data(resultado[1], resultado[2], resultado[0], session)
+    print("")
+    time.sleep(0.25)
+
+
+
+
+
+
+
+# Inserting new data
+
+
+
+
+
+'''
+while True:
+    #dato = can0.recv(2.0)
     timestamp,id_tag,data_str = get_data_canbus(dato)
     if id_tag in a:
         objetos = a[id_tag]
@@ -64,4 +125,4 @@ while True:
             }
             d.save_data(json_data,file_json_path)
     time.sleep(2.0)
-
+'''

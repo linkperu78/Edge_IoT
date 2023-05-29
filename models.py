@@ -13,3 +13,17 @@ class Data(db.Model):
             'I': self.I,
             'F': self.F
         }
+    
+class Salud(db.Model):
+    __tablename__ = 'salud_table'
+    Id = db.Column(db.Integer, nullable=False ,primary_key=True)
+    P = db.Column(db.Float)
+    I = db.Column(db.String(30))
+    F = db.Column(db.String(30))
+
+    def to_dict(self):
+        return {
+            'P': self.P,
+            'I': self.I,
+            'F': self.F
+        }
