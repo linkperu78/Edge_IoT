@@ -1,5 +1,8 @@
 from extensions import db
 
+mac = "456"
+cargadora = "125"
+id_empresa = 1
 
 class Data(db.Model):
     __tablename__ = 'data'
