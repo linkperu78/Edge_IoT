@@ -6,7 +6,7 @@ from datetime import datetime as date
 import time
 import funciones as d
 import json
-#import can
+import can
 
 import generate_data as g
 
@@ -15,7 +15,7 @@ time_canbus = "0"
 id_canbus = ""
 value_canbus = 0
 
-#can0 = can.interface.Bus(channel = 'can0', bustype = 'socketcan_native')
+can0 = can.interface.Bus(channel = 'can0', bustype = 'socketcan_native')
 
 def get_data_canbus(msg_canbus):
     data_canbus_str = []
@@ -61,13 +61,15 @@ def insert_data(P_value, I_value, F_value, session):
 a = d.id_can_datos
 name_file = date.now().strftime("%m_%d_%H_%M")
 print(name_file)
-file_json_path = "json_data/" + name_file + ".json"
+file_json_path = "json_data/" + name_file + ".txt"
 time_actual = time.time()
+
 # Database URI
 db_uri = 'sqlite:///instance/dato.db'
 
 # Creating a new session
 session = connect_to_db(db_uri)
+
 
 while True:
     actual_timestamp = time.time()
@@ -75,23 +77,23 @@ while True:
     if(time_elapse == 0):
         time.sleep(1)
         continue
+
     print(f"- Tiempo transcurrido: {time_elapse}")
-    for msg in g.generar_data(time_elapse):
-        timestamp,id_tag,data_str = get_data_canbus(msg)
-        timestamp = actual_timestamp
-        if id_tag in a:
-            objetos = a[id_tag]
-        for obj in objetos:
-            resultado = [str(timestamp)]
-            m = obj.values_to_pub(data_str)
-            resultado = resultado + m
-            json_data = {
-                "F": resultado[0],
-                "P": resultado[1],
-                "I": resultado[2]
-            }
-            d.save_data(json_data,file_json_path)
-            insert_data(resultado[1], resultado[2], resultado[0], session)
+    msg = can0.recv(2.0)
+    d.save_data(msg,file_json_path)
+
+    timestamp,id_tag,data_str = get_data_canbus(msg)
+    #timestamp = actual_timestamp
+
+    if id_tag in a:
+        objetos = a[id_tag]
+
+    for obj in objetos:
+        resultado = [str(timestamp)]
+        m = obj.values_to_pub(data_str)
+        resultado = resultado + m
+        insert_data(resultado[1], resultado[2], resultado[0], session)
+
     print("")
     time.sleep(0.25)
 

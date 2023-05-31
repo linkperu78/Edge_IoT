@@ -34,7 +34,7 @@ def create_app():
         data = Data.query.all()
         return jsonify([d.to_dict() for d in data])
 
-    @app.route('/salud/<int:part>')
+    @app.route('/salud/datos/<int:part>')
     def specific_data(part):
         package_size = 10
         offset = (part - 1) * package_size

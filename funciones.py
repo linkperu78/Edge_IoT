@@ -1,7 +1,7 @@
 import time
 import json
 import os
-
+import sqlite3
 
 class tag_config:
     def __init__(self, tag_name, init_byte, len_byte, scale, offset):
@@ -80,13 +80,34 @@ id_can_datos = {"f004" : {  tag_config("RPM",4,2,0.125,0),            # 190/
 
 def save_data(data, filename):
     file_exists = os.path.isfile(filename)
-
+    #data = f"{data}"
     with open(filename, 'a') as file:
         if file_exists:
-            file.write(',')
-        json.dump(data, file)
+            file.write('\n')
+        file.write(data)
 
+def get_data_backup():
+    name_file = "back_up.json"
+    path = "json_data/" + name_file
+    with open(path,'r') as file:
+        json_data = json.load(file)
+    return json_data['state'],json_data['date']
+    
+def get_time_last_date():
+    name_file = "last_date.txt"
+    path = "json_data/" + name_file
+    with open(path,'r') as file:
+        number = file.read()
+    print(number)
 
+def clear_table(source_db,table_name):
+    temp = "instance/" + source_db
+    conn = sqlite3.connect(temp)
+    cursor = conn.cursor()
+    cursor.execute(f"DELETE FROM {table_name}")
+    # Commit the changes and close the connection
+    conn.commit()
+    conn.close()
 
 
 # Load Rite Sensor      PESAJE 3180
