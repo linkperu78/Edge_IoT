@@ -5,6 +5,8 @@
 /build/
 /json_data/
 /templates/
+/instance/
+/__pycache__/
 
 # Ignore log files
 *.log
@@ -31,3 +33,6 @@ delete_tables.py
 generate_data.py
 test_insertion.py
 create_tabla.py
+clear_table.py
+view_table.py
+view_tables.py

@@ -13,8 +13,8 @@ packages_size = 300
 
 def create_app():
     app = Flask(__name__)
-    logging.getLogger('werkzeug').setLevel(logging.ERROR)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dato.db'
+    #logging.getLogger('werkzeug').setLevel(logging.ERROR)
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///back_data.db'
 
     db.init_app(app)
 
@@ -36,7 +36,7 @@ def create_app():
 
     @app.route('/salud/datos/<int:part>')
     def specific_data(part):
-        package_size = 10
+        package_size = packages_size
         offset = (part - 1) * package_size
         limit = package_size
         data = Data.query.offset(offset).limit(limit).all()
