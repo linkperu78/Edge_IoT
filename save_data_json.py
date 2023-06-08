@@ -15,7 +15,7 @@ time_canbus = "0"
 id_canbus = ""
 value_canbus = 0
 
-can0 = can.interface.Bus(channel = 'can0', bustype = 'socketcan_native')
+can0 = can.interface.Bus(channel = 'can0', bustype = 'socketcan')
 
 def get_data_canbus(msg_canbus):
     data_canbus_str = []
@@ -33,7 +33,7 @@ def get_data_canbus(msg_canbus):
             i += 1
             pos_id = temp[i][2:6]
             continue
-        if new_temp == "DLC:":
+        if new_temp == "DL:":
             i += 1
             pos_data = int(temp[i])
             for j in range(pos_data):
@@ -79,12 +79,12 @@ while True:
         continue
 
     print(f"- Tiempo transcurrido: {time_elapse}")
-    msg = can0.recv(2.0)
-    d.save_data(msg,file_json_path)
+    msg = str(can0.recv(2.0))
+    #d.save_data(msg,file_json_path)
 
     timestamp,id_tag,data_str = get_data_canbus(msg)
     #timestamp = actual_timestamp
-
+    objetos = []
     if id_tag in a:
         objetos = a[id_tag]
 
