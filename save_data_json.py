@@ -96,35 +96,4 @@ while True:
 
     print("")
     time.sleep(0.25)
-
-
-
-
-
-
-
-# Inserting new data
-
-
-
-
-
-'''
-while True:
-    #dato = can0.recv(2.0)
-    timestamp,id_tag,data_str = get_data_canbus(dato)
-    if id_tag in a:
-        objetos = a[id_tag]
-        for obj in objetos:
-            resultado = [timestamp]
-            m = obj.values_to_pub(data_str)
-            resultado = resultado + m
-            #print(resultado)
-            json_data = {
-                "F": resultado[0],
-                "P": resultado[1],
-                "I": resultado[2]
-            }
-            d.save_data(json_data,file_json_path)
-    time.sleep(2.0)
-'''
+    

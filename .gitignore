@@ -28,11 +28,6 @@ directory/
 *.csv
 
 # Ignore next python scripts
-check_tables.py
-delete_tables.py
-generate_data.py
-test_insertion.py
-create_tabla.py
-clear_table.py
-view_table.py
-view_tables.py
+#my_sql.py
+#sql_script.py
+#save_data_json.py
