@@ -8,9 +8,23 @@ can1 = can.interface.Bus(channel = 'can0', bustype = 'socketcan')
 send_count = 0
 timestamp = 0
 
+id_list = { "0x0cf00300"    : {2, 2},
+            "0x0cf00400"    : {3, 3}, 
+            "0x0cfedf00"    : {1, 3},
+            "0x0cfee400"    : {5, 1},
+            "0x0cfee500"    : {1, 4},
+            "0x0cfee900"    : {5, 4},
+            "0x0cfeee00"    : {1, 4},
+            "0x0cfeef00"    : {1, 8},
+            "0x0cfef200"    : {1, 2},
+            "0x0cfef500"    : {1, 1},
+            "0x0cfef600"    : {2, 3},
+            "0x0cfef700"    : {5, 2}
+            }
+
+
 def get_random_id():
-    id_list = [0x0cf00300, 0x0cf00400, 0x0cfedf00,0x18fef600,0x18fef200, 0x18feef00, 0x18fee900,
-        0x18fef500, 0x18fef700, 0x18feee00]
+
     random_id = random.choice(id_list)
     return random_id
 
