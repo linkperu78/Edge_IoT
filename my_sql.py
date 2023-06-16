@@ -90,3 +90,15 @@ class table_stats:
 
         # Close the session
         session.close()
+
+
+    # Ver ultimos 20 valores de tabla
+    def check_last_value(self, count):
+        Session = sessionmaker(bind = self.engine)
+        session = Session()
+
+        results = session.query(model.Salud).order_by(model.Salud.Id.desc()).limit(count).all()
+        results = results[::-1]
+        for result in results:
+            print(f"{result.Id} \t {result.F} \t {result.I} \t {result.P}")
+            

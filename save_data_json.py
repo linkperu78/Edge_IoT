@@ -2,23 +2,35 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
 from models import Salud as Data
-from datetime import datetime as date
 
 import time
+import multiprocessing
+from multiprocessing import Process, Queue
+import queue as q
+
 import funciones as d
 import json
 import can
 import generate_data as g
 
-
 time_canbus = "0"
 id_canbus = ""
 value_canbus = 0
-
-can0 = can.interface.Bus(channel = 'can0', bustype = 'socketcan')
 database_name = "dato.db"
 
+can0 = None
 
+'''
+while can0 is None:
+    try:
+        can0 = can.interface.Bus(channel = 'can0', bustype = 'socketcan')
+        print("Sucessfully open CAN BUS port")
+    except Exception as e:
+        print(e)
+        time.sleep(1)
+'''
+
+# return: timestamp , tag, data_byte
 def get_data_canbus(msg_canbus):
     data_canbus_str = []
     i, pos_time, pos_id, pos_data = 0,"","",0
@@ -42,13 +54,18 @@ def get_data_canbus(msg_canbus):
                 data_canbus_str.append(temp[j+i+1])
             break; 
         i += 1
+    
     return [pos_time,pos_id,data_canbus_str]
 
+
+# Create connection database
 def connect_to_db(db_uri):
     engine = create_engine(db_uri)
     Session = sessionmaker(bind=engine)
     return Session()
 
+
+# Save data in table 
 def insert_data(P_value, I_value, F_value, session):
     new_data = Data(P=P_value, I=I_value, F=F_value)
     session.add(new_data)
@@ -57,15 +74,57 @@ def insert_data(P_value, I_value, F_value, session):
     except SQLAlchemyError as e:
         session.rollback()
         print("Error occurred:", e)
-        return None
-    #return new_data
 
-a = d.id_can_datos
 
-name_file = date.now().strftime("%m_%d_%H_%M")
+def leer_canbus(queue):
+    while True:
+        try:
+            msg = str( can0.recv( 2 ) )
+            if msg == None:
+                time.sleep(2)
+                continue
+            print(msg.timestamp)
+            #msg = "Timestamp: 1686938757.806005    ID: 0cf00300    X Rx                DL:  8    ff 4e 64 ff ff ff ff ff     Channel: can0"
+            timestamp, id_tag, data_str = get_data_canbus(msg)
 
-print(name_file)
-file_json_path = "json_data/" + name_file + ".txt"
+            new_timestamp = float(timestamp)
+            new_timestamp = int(new_timestamp)
+            message_queue = [new_timestamp, id_tag, data_str]
+            queue.put(message_queue)
+
+        except Exception as e:
+            print(e)
+
+        
+
+def save_in_table(queue, ):
+    while True:
+        try:
+            timestamp, id_tag, data_byte = queue.get( timeout = 1)
+            objetos = []
+
+            if id_tag in a:
+                objetos = base_data[id_tag]
+            
+            for obj in objetos:
+                resultado = [str(timestamp)]
+                m = obj.values_to_pub(data_byte)
+                #print("Resultado = " + str(m))
+                resultado = resultado + m
+                insert_data(resultado[1], resultado[2], resultado[0], session)
+
+        except q.Empty as e:
+            print("Waiting ...")
+
+        time.sleep(0.1)
+
+ 
+# Creamos la clase
+base_data = d.id_can_datos
+
+# Extraemos las llaves existentes
+a = list(base_data.keys())
+
 time_actual = time.time()
 
 # Database URI
@@ -75,23 +134,41 @@ db_uri = 'sqlite:///instance/' + database_name
 session = connect_to_db(db_uri)
 
 
-while True:
-    #actual_timestamp = time.time()
-    #time_elapse = int(actual_timestamp - time_actual)
-    #print(f" {actual_timestamp} ")    
-    #if(time_elapse == 0):
-    #    time.sleep(1)
-    #    continue
-    #print(" ----- ")
-    #print(f"- Tiempo transcurrido: {time_elapse}")
-    #print(" ----- ")
+#counter = 0
+if __name__ == "__main__":
+    queue = Queue()
+
+    # Global counter
+    counter = multiprocessing.Value('i', 0)
     
+    print(" -------------------- START -------------------- ")
+
+    # First Process
+    read_process = Process( target = leer_canbus, args = (queue, counter) )
+
+    # Second Process
+    save_process = Process( target = save_in_table, args = (queue, ) )
+
+    # Start processes
+    read_process.start()
+    save_process.start()
+
+    # Wait for both process to finish
+    read_process.join()
+    save_process.join()
+
+
+
+
+
+
+'''
+while True:
     msg = str(can0.recv(10))
     print(msg)
-    #d.save_data(msg,file_json_path)
 
     timestamp,id_tag,data_str = get_data_canbus(msg)
-    #timestamp = actual_timestamp
+
     objetos = []
     if id_tag in a:
         objetos = a[id_tag]
@@ -108,3 +185,4 @@ while True:
 
     print("")
     #time.sleep(0.0001)
+'''
