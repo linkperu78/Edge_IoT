@@ -3,6 +3,7 @@ import models as model
 from sqlalchemy_utils import database_exists, create_database
 from sqlalchemy.orm import sessionmaker
 
+
 # Funciones para manejar creacion, chequeo o eliminacion
 
 #Creacion de clases
@@ -12,6 +13,7 @@ class table_stats:
         self.table_name = table_name
         self.engine = db.create_engine(f"sqlite:///instance/{database}")
         #self.enginenn = db.create_engine(f"sqlite:///{database}", echo = True)
+
     def get_database(self):
         return self.database
     
@@ -71,3 +73,20 @@ class table_stats:
         session.close()
 
 
+    # Ver tablas en la base de datos
+    def check_db(self):
+        Session = sessionmaker(bind=self.engine)
+        session = Session()
+
+        # Define Metadata
+        metadata = db.MetaData()
+        
+        #Create reflect of database
+        metadata.reflect(bind = self.engine)
+
+        # Get the table names
+        tables_names = metadata.tables.keys()
+        print(tables_names)
+
+        # Close the session
+        session.close()

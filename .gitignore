@@ -1,7 +1,9 @@
 # Ignore files with .pyc extension
 *.pyc
 
+
 # Ignore the entire "build" directory
+/focux_env/
 /build/
 /json_data/
 /templates/

@@ -3,11 +3,11 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.exc import SQLAlchemyError
 from models import Salud as Data
 from datetime import datetime as date
+
 import time
 import funciones as d
 import json
 import can
-
 import generate_data as g
 
 
@@ -16,6 +16,8 @@ id_canbus = ""
 value_canbus = 0
 
 can0 = can.interface.Bus(channel = 'can0', bustype = 'socketcan')
+database_name = "dato.db"
+
 
 def get_data_canbus(msg_canbus):
     data_canbus_str = []
@@ -59,27 +61,33 @@ def insert_data(P_value, I_value, F_value, session):
     #return new_data
 
 a = d.id_can_datos
+
 name_file = date.now().strftime("%m_%d_%H_%M")
+
 print(name_file)
 file_json_path = "json_data/" + name_file + ".txt"
 time_actual = time.time()
 
 # Database URI
-db_uri = 'sqlite:///instance/dato.db'
+db_uri = 'sqlite:///instance/' + database_name
 
 # Creating a new session
 session = connect_to_db(db_uri)
 
 
 while True:
-    actual_timestamp = time.time()
-    time_elapse = int(actual_timestamp - time_actual)
-    if(time_elapse == 0):
-        time.sleep(1)
-        continue
-
-    print(f"- Tiempo transcurrido: {time_elapse}")
-    msg = str(can0.recv(2.0))
+    #actual_timestamp = time.time()
+    #time_elapse = int(actual_timestamp - time_actual)
+    #print(f" {actual_timestamp} ")    
+    #if(time_elapse == 0):
+    #    time.sleep(1)
+    #    continue
+    #print(" ----- ")
+    #print(f"- Tiempo transcurrido: {time_elapse}")
+    #print(" ----- ")
+    
+    msg = str(can0.recv(10))
+    print(msg)
     #d.save_data(msg,file_json_path)
 
     timestamp,id_tag,data_str = get_data_canbus(msg)
@@ -91,9 +99,12 @@ while True:
     for obj in objetos:
         resultado = [str(timestamp)]
         m = obj.values_to_pub(data_str)
+        
+        print("Resultado = " + str(m))
         resultado = resultado + m
+        
         insert_data(resultado[1], resultado[2], resultado[0], session)
+        
 
     print("")
-    time.sleep(0.25)
-    
+    #time.sleep(0.0001)

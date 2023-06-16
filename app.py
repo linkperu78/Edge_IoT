@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, render_template
 from models import Salud as Data
 from models import mac, cargadora, id_empresa
-import subprocess
+#import subprocess
 #import re
 import logging
 from extensions import db
@@ -13,14 +13,19 @@ import time
 
 id_maquina = "EQP"+cargadora
 packages_size = 300
-ip_default = "192.168.18.113"
+
+
+#database_name = 'back_data.db'
+database_name = 'dato.db'
+
+ip_default = "192.168.18.181"
 #ip_default =  "10.42.0.1"
 
 
 def create_app():
     app = Flask(__name__)
-    ##logging.getLogger('werkzeug').setLevel(logging.ERROR)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///back_data.db'
+    logging.getLogger('werkzeug').setLevel(logging.ERROR)
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + database_name
 
     db.init_app(app)
 
@@ -62,8 +67,8 @@ def create_app():
     return app
 
 
-output = subprocess.check_output(['ifconfig', 'wlan0']).decode('utf-8')
-print(output)
+#output = subprocess.check_output(['ifconfig', 'wlan0']).decode('utf-8')
+#print(output)
 #ip_address = re.search(r'inet (\d+\.\d+\.\d+\.\d+)', output).group(1)
 app = create_app()
 if __name__ == '__main__':
