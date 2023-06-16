@@ -121,14 +121,15 @@ class valores_canbus:
             "0x0cf00400"    : {
                             'freq' : 30,
                             'members' : [# Velocidad del motor
-                                         canbus_cuadratica("RPM", 4, 2, 0, 200, 1000),
+                                         canbus_cuadratica("RPM", 4, 2, 8000, 20, 8000),
                                          # Torque actual 
                                          canbus_white_noise("TorqueActual", 3, 1, 10, 10, 20)]}, 
             
             "0x0cfedf00"    : {
                             'freq' : 120,
+                            #'freq' : 2,
                             'members' : [# Velocidad Deseada del motor
-                                         canbus_cuadratica("RPMDeseado", 2, 2, 800, 300, 1500),
+                                         canbus_cuadratica("RPMDeseado", 2, 2, 8000, 300, 8000),
                                          # Torque requerido 
                                          canbus_white_noise("PTorque", 1, 1, 20, 20, 20)]},
             
