@@ -4,6 +4,10 @@ import subprocess
 from smbus2 import SMBus
 import os
 
+import gpio_functions as g
+led_pin = 10
+
+
 # Config Register (R/W)
 _REG_CONFIG                 = 0x00
 # SHUNT VOLTAGE REGISTER (R)
@@ -136,6 +140,7 @@ class INA219:
             value -= 65535
         return value * self._power_lsb
 
+
 def save_data():
     # Get the device's time alive
     uptime_process = subprocess.Popen(['cat', '/proc/uptime'], stdout=subprocess.PIPE)
@@ -150,50 +155,55 @@ def save_data():
         f.write(f'- Time Alive: {uptime}\n')
         f.write(f'    Current Date: {current_date}\n')
 
+
 def shut_down():
     # Shutdown the device
     password = "focux"
     sudo_command = f'echo "{password}" | sudo -S shutdown -h now'
     subprocess.call(sudo_command, shell=True)
 
-if __name__=='__main__':
+if __name__ == '__main__':
     #print("Iniciamos el supervisor de bateria")
+    
     # Create an ADS1115 ADC (16-bit) instance.
     ina219 = INA219(addr=_DEFAULT_ADDRESS)
     
-    prev_current = -999999
-    change_current = 0
+    g.set_code_utf()
+    g.gpio_output(led_pin)
+    g.on_pin(led_pin)
+    
+    
     enable_off = 0
+    current = 0
+    
     count_down = _DEFAULT_COUNT_MAX
     time.sleep(3)
+    
     while True:
         bus_voltage = ina219.getBusVoltage_V()             # voltage on V- (load side)
-        shunt_voltage = ina219.getShuntVoltage_mV() / 1000 # voltage between V+ and V- across the shunt
+        #shunt_voltage = ina219.getShuntVoltage_mV() / 1000 # voltage between V+ and V- across the shunt
         current = ina219.getCurrent_mA()                   # current in mA
-        power = ina219.getPower_W()                        # power in W
-        p = (bus_voltage - 6)/2.4*100
-        if(p > 100):p = 100
-        if(p < 0):p  = 0
+        #power = ina219.getPower_W()                        # power in W
+        p = (bus_voltage - 6) / 2.4 * 100
+        #if (p > 100): p = 100
+        #if (p < 0): p  = 0
 
-        change_current = current - prev_current
-        prev_current = current
-        
-        if(change_current < -100) :
+        if(current < - 100) :
             enable_off = 1
-        if(change_current > 100) :
+        else:
             enable_off = 0
             count_down = _DEFAULT_COUNT_MAX
         if(enable_off):
             print(" Apagando el equipo en {:1.0f}".format(count_down))
             if(count_down < 1):
-                save_data()
+                #save_data()
                 shut_down()
             count_down -= 1
         # INA219 measure bus voltage on the load side. So PSU voltage = bus_voltage + shunt_voltage
-        print("- - Load Voltage:  {:6.3f} V".format(bus_voltage))
-        print("- Current:       {:9.6f} A".format(current/1000))
-        print(" * * Change Current = {:4.1f} A * *".format(change_current))
+#        print("- - Load Voltage:  {:6.3f} V".format(bus_voltage))
+        #print("- Current:       {:9.6f} A".format(current) )
+#        print(" * * Change Current = {:4.1f} A * *".format(change_current))
         #print("Power:         {:6.3f} W".format(power))
         #print("Percent:       {:3.1f}%".format(p))
-        print("")
+        #print("")
         time.sleep(2)

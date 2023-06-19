@@ -20,7 +20,7 @@ database_name = "dato.db"
 
 can0 = None
 
-'''
+
 while can0 is None:
     try:
         can0 = can.interface.Bus(channel = 'can0', bustype = 'socketcan')
@@ -28,7 +28,7 @@ while can0 is None:
     except Exception as e:
         print(e)
         time.sleep(1)
-'''
+
 
 # return: timestamp , tag, data_byte
 def get_data_canbus(msg_canbus):
@@ -79,14 +79,14 @@ def insert_data(P_value, I_value, F_value, session):
 def leer_canbus(queue):
     while True:
         try:
-            msg = str( can0.recv( 2 ) )
-            if msg == None:
+            msg = can0.recv( 2 )
+            #print(f"Message = {msg}")
+            if msg is None:
+                #print("No data reciving ...")
                 time.sleep(2)
                 continue
-            print(msg.timestamp)
-            #msg = "Timestamp: 1686938757.806005    ID: 0cf00300    X Rx                DL:  8    ff 4e 64 ff ff ff ff ff     Channel: can0"
-            timestamp, id_tag, data_str = get_data_canbus(msg)
 
+            timestamp, id_tag, data_str = get_data_canbus( str(msg) )
             new_timestamp = float(timestamp)
             new_timestamp = int(new_timestamp)
             message_queue = [new_timestamp, id_tag, data_str]
@@ -95,12 +95,12 @@ def leer_canbus(queue):
         except Exception as e:
             print(e)
 
-        
 
-def save_in_table(queue, ):
+def save_in_table(queue):
     while True:
+        my_time = time.time()
         try:
-            timestamp, id_tag, data_byte = queue.get( timeout = 1)
+            timestamp, id_tag, data_byte = queue.get( timeout = 30 )
             objetos = []
 
             if id_tag in a:
@@ -109,14 +109,20 @@ def save_in_table(queue, ):
             for obj in objetos:
                 resultado = [str(timestamp)]
                 m = obj.values_to_pub(data_byte)
-                #print("Resultado = " + str(m))
                 resultado = resultado + m
+
                 insert_data(resultado[1], resultado[2], resultado[0], session)
 
+            my_time = round( (time.time() - my_time) * 1000 , 2)
+            print(f"{my_time} ms")
         except q.Empty as e:
-            print("Waiting ...")
+            print("...")
 
-        time.sleep(0.1)
+        except Exception as e:
+            pass
+            #print(e)
+            #print(m)
+        #time.sleep(0.1)
 
  
 # Creamos la clase
@@ -144,7 +150,7 @@ if __name__ == "__main__":
     print(" -------------------- START -------------------- ")
 
     # First Process
-    read_process = Process( target = leer_canbus, args = (queue, counter) )
+    read_process = Process( target = leer_canbus, args = (queue, ) )
 
     # Second Process
     save_process = Process( target = save_in_table, args = (queue, ) )

@@ -39,7 +39,7 @@ class tag_config_bits:
         real_bit = int(int_byte *8 + dot_byte) 
         k_bin = bin_value[real_bit-1:real_bit-1+self.len_byte]
         pos_dict = int(k_bin,2)
-        return self.dict[pos_dict]
+        return [self.dict[pos_dict], self.tag_name]
 
 # Diccionario para DATOS SALUD
                     # tag_config("TAG", StartByte, LenByte, Scale, Offset)
@@ -70,7 +70,7 @@ id_can_datos = {"f004" : {  tag_config("RPM",4,2,0.125,0),            # 190/
                             tag_config("TLubricante",3,2,0.03125,-273),      # 175/
                             tag_config("TRefrigerante",1,1,1,-40)     # 110/
                         },
-                "fee4": {   tag_config_bits("EMotor",5.7,2,["Inactive","Active","Error","Not Available"])     
+                "fee4": {   tag_config_bits("EMotor", 5.7, 2, [1,2,3,4] )     
                         },                                             # 1107/
                 "fef2": {   tag_config("QCombustible",1,2,0.05,0)      # 183/
                         },
