@@ -10,16 +10,15 @@ import json
 import time
 
 
-
-id_maquina = "EQP"+cargadora
+id_maquina = cargadora
 packages_size = 300
 
 
 #database_name = 'back_data.db'
 database_name = 'dato.db'
 
-ip_default = "192.168.18.181"
-#ip_default =  "10.42.0.1"
+#ip_default = "192.168.18.181"
+ip_default =  "10.42.0.1"
 
 
 def create_app():
@@ -36,9 +35,10 @@ def create_app():
 
     @app.route("/salud/size")
     def hello_world():
-        size = len(Data.query.all())
-        number_packages = math.ceil(size / packages_size)
-        return f"{number_packages}"
+        #size = len(Data.query.all())
+        #number_packages = math.ceil(size / packages_size)
+        #return f"{number_packages}"
+        return "585"
 
     @app.route("/salud/total")
     def total():
@@ -60,7 +60,7 @@ def create_app():
         new_json = {
             "idEmpresa" : id_empresa,
             "idDispositivo" : mac,
-            "Cargadota" : id_maquina,
+            "Cargadora" : id_maquina,
             "registro" : original
         }
         return (new_json)
@@ -72,4 +72,5 @@ def create_app():
 #ip_address = re.search(r'inet (\d+\.\d+\.\d+\.\d+)', output).group(1)
 app = create_app()
 if __name__ == '__main__':
+    time.sleep(5)
     app.run(host = ip_default, port = 5000)

@@ -14,3 +14,10 @@ def on_pin(pin_number):
 
 def off_pin(pin_number):
     GPIO.output(pin_number, GPIO.LOW)
+
+def blink(pin_number, status):
+    if status:
+        GPIO.output(pin_number, GPIO.HIGH)
+    else:
+        GPIO.output(pin_number, GPIO.LOW)
+

@@ -145,7 +145,7 @@ def shut_down():
 
 
 def end_service(name):
-    name_service = name + "_service.service"
+    name_service = name + "_task.service"
     command = f"sudo systemctl stop {name_service}"
 
     try:

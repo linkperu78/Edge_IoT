@@ -12,22 +12,26 @@ import funciones as d
 import json
 import can
 import generate_data as g
+import gpio_functions as gp
 
 time_canbus = "0"
 id_canbus = ""
 value_canbus = 0
 database_name = "dato.db"
 
+green_led = 10
+
+
+
+# Abrimos el puerto can0, el programa no avanzara si no se abre
 can0 = None
-
-
 while can0 is None:
     try:
         can0 = can.interface.Bus(channel = 'can0', bustype = 'socketcan')
         print("Sucessfully open CAN BUS port")
     except Exception as e:
         print(e)
-        time.sleep(1)
+        time.sleep(30)
 
 
 # return: timestamp , tag, data_byte
@@ -97,26 +101,27 @@ def leer_canbus(queue):
 
 
 def save_in_table(queue):
+    led_status = 1
     while True:
-        my_time = time.time()
+        #my_time = time.time()
         try:
-            timestamp, id_tag, data_byte = queue.get( timeout = 30 )
+            timestamp, id_tag, data_byte = queue.get( timeout = 2 )
             objetos = []
-
             if id_tag in a:
                 objetos = base_data[id_tag]
-            
+                led_status = 1 - led_status
+                gp.blink(green_led, led_status)
+
             for obj in objetos:
                 resultado = [str(timestamp)]
                 m = obj.values_to_pub(data_byte)
                 resultado = resultado + m
-
                 insert_data(resultado[1], resultado[2], resultado[0], session)
-
-            my_time = round( (time.time() - my_time) * 1000 , 2)
-            print(f"{my_time} ms")
+            
+            #my_time = round( (time.time() - my_time) * 1000 , 2)
+            #print(f"{my_time} ms")
         except q.Empty as e:
-            print("...")
+            gp.on_pin(green_led)
 
         except Exception as e:
             pass
@@ -142,6 +147,11 @@ session = connect_to_db(db_uri)
 
 #counter = 0
 if __name__ == "__main__":
+
+    gp.set_code_utf()
+    gp.gpio_output(green_led)
+    gp.on_pin(green_led)
+
     queue = Queue()
 
     # Global counter
