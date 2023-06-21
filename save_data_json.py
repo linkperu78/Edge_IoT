@@ -15,6 +15,7 @@ my_table_name = "salud_table"
 green_led = 10
 
 # Abrimos el puerto can0, el programa no avanzara si no se abre
+time.sleep(0.5)
 can0 = None
 while can0 is None:
     try:
@@ -39,10 +40,12 @@ def leer_canbus(queue):
             
             # Desencriptamos el mensaje CAN recibido
             timestamp, id_tag, data_str = can_lib.get_data_canbus( str(msg) )
+            timestamp = int(float(timestamp))
             objetos = []
             # Buscamos que TAG estan en el ID recibido
             
-            if id_tag not in my_list_id:
+            if not id_tag in my_list_id:
+                #print(f"No se encontro el tag: {id_tag}")
                 continue
             
             # Caso excepcional para los ID especiales
@@ -51,25 +54,30 @@ def leer_canbus(queue):
                 for obj in objetos:
                     value, tag = obj.values_to_pub(data_str)
                     if ( obj.is_new_value(value) > 0 ):
-                        print([tag, value])
+                        #print([ str(timestamp), value, tag ])
                         queue.put([str(timestamp), value, tag])
                 continue
 
+            objetos = my_dictionary[id_tag]
             for obj in objetos:
                 resultado = [str(timestamp)]     #payload = [ timestamp ]
                 value, tag = obj.values_to_pub(data_str)
                 resultado = resultado + [value, tag]    #payload = [ timestamp - value - tag_id]
-                print(resultado)
-                queue.put(resultado)
+                print(f"Resultado = {resultado}")
+                #queue.put(resultado)
 
         except Exception as e:
             print(e)
 
+def change_status():
+    pass
+
+
 
 def save_in_table(queue):
     led_state = 1
-    gp.set_code_utf()
-    gp.gpio_output(green_led)
+    #gp.set_code_utf()
+    #gp.gpio_output(green_led)
     time_prev = int(time.time())
     while True:
         try:
@@ -105,21 +113,18 @@ if __name__ == "__main__":
 
     queue = Queue()
 
-    # Global counter
-    counter = multiprocessing.Value('i', 0)
-    
     print(" -------------------- START -------------------- ")
     # First Process
     read_process = Process( target = leer_canbus, args = (queue, ) )
 
     # Second Process
-    #save_process = Process( target = save_in_table, args = (queue, ) )
+    save_process = Process( target = save_in_table, args = (queue, ) )
 
     # Start processes
     read_process.start()
-    #save_process.start()
+    save_process.start()
 
     # Wait for both process to finish
     read_process.join()
-    #save_process.join()
+    save_process.join()
 

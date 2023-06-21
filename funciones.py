@@ -6,26 +6,26 @@ class tag_config:
         self.len_byte   = len_byte
         self.scale      = scale
         self.offset     = offset
-        self.actual = 0
-  
+        self.actual_value = 0
+        self.change_needed = 0.03 * ( ( 2 ** len_byte ) * scale - offset )
+
+    def is_new_value(self, input_value):
+        # Retornamos 1 si el valor es sustancialmente diferente
+        # Retornamos 0 para ignorar el valor entrante
+        if ( abs(input_value - self.actual_value) >  self.change_needed):
+            self.actual_value = input_value
+            return 1
+        else:
+            return 0
+
     # Convertimos los bytes correspondientes a un valor entero segun TAG
     def get_value_from_can(self, hex_array):
         temp_hex = "0x"
         for i in range(self.len_byte):
             pos = self.init_byte-i+self.len_byte-2
             temp_hex += hex_array[pos]
-
         return int(temp_hex,16)*self.scale + self.offset
     
-    def is_new_value(self, input_value):
-        # Retornamos 1 si el valor es sustancialmente diferente
-        # Retornamos 0 para ignorar el valor entrante
-        if ( abs(input_value - self.actual_value) > self.actual_value * 0.1):
-            self.actual_value = input_value
-            return 1
-        else:
-            return 0
-
     # Obtenemos el array: [ Tag_Value, "Tag_name" ]
     def values_to_pub(self, array_hexadecimal):
         array = [self.get_value_from_can(array_hexadecimal), self.tag_name]
@@ -61,22 +61,25 @@ class tag_config_bits:
 
 # Definimos la lista de variables a decodificar con su respectiva frecuencia deseada:
 
-array_id = ["f004", "f003", "fedf", "fee4", "fee5", "fee9", "feee", "feef", "fef2", "fef5", "fef6", "fef7"]
+array_id   = ["f004", "fedf", "f003", "fef6", "fee9", "feef", "fef5", "fef7", "feee", "fee4", "fef2", "fee5"]
+#array_id = []
+
 special_id = ["f004", "fedf"]
+#special_id = ["f004"]
 
 lista_id = {
     array_id[0] : 30,        #   RPM, TorqueActual
-    array_id[1] : 60,        #   Fcarga, Acelerador 
-    array_id[2] : 120,       #   RPMDeseado, PTorque
-    array_id[3] : 3600,      #   EMotor
-    array_id[4] : 3600,      #   Horometro
-    array_id[5] : 60,        #   CCombustible
-    array_id[6] : 300,       #   TCombustible, TLubricante, TRefrigerante
-    array_id[7] : 300,       #   PLubricante, NRefrigerante, PCombustible
-    array_id[8] : 120,       #   QCombustible
-    array_id[9] : 600,       #   PAtmosferica
-    array_id[10] : 60,       #   TAdmision, PAdmision, PSalida
-    array_id[11] : 1200      #   Voltaje
+    array_id[1] : 120,       #   RPMDeseado, PTorque
+    array_id[2] : 60,        #   Fcarga, Acelerador
+    array_id[3] : 60,        #   TAdmision, PAdmision, PSalida
+    array_id[4] : 60,        #   CCombustible
+    array_id[5] : 300,       #   PLubricante, NRefrigerante, PCombustible
+    array_id[6] : 600,       #   PAtmosferica
+    array_id[7] : 1200,      #   Voltaje
+    array_id[8] : 300,       #   TCombustible, TLubricante, TRefrigerante
+    array_id[9] : 3600,      #   EMotor
+    array_id[10] : 120,      #   QCombustible
+    array_id[11] : 3600,     #   Horometro
 }
 
 
