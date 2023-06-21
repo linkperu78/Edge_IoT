@@ -1,30 +1,41 @@
+# Librerias para SQL
 import sqlalchemy as db
-import models as model
 from sqlalchemy_utils import database_exists, create_database
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.exc import SQLAlchemyError
 
+import models as model
+from models import Salud as Data
 
 # Funciones para manejar creacion, chequeo o eliminacion
-
 #Creacion de clases
-class table_stats:
+class my_table_functions:
     def __init__(self, database = "dato.db", table_name = "salud_table"):
         self.database = database
         self.table_name = table_name
         self.engine = db.create_engine(f"sqlite:///instance/{database}")
-        #self.enginenn = db.create_engine(f"sqlite:///{database}", echo = True)
 
-    def get_database(self):
-        return self.database
-    
-    def get_table_name(self):
-        return self.table_name
+    # Create connection database
+    def connect_to_db(self):
+        Session = sessionmaker(bind = self.engine)
+        return Session()
+
+
+    # Save data in table 
+    def insert_sql_PIF(P_value, I_value, F_value, session):
+        new_data = Data(P=P_value, I=I_value, F=F_value)
+        session.add(new_data)
+        try:
+            session.commit()
+        except SQLAlchemyError as e:
+            session.rollback()
+            print("Error occurred:", e)
+
 
     # Creacion de base de datos
     def create_db(self):
         if not database_exists(self.engine.url):
             create_database(self.engine.url)
-
 
     # Eliminacion de la base de datos
     def delete_db(self):
@@ -56,12 +67,11 @@ class table_stats:
     
     # Clear the tabla data
     def clear_table(self):
-        Session = sessionmaker(bind=self.engine)
-        session = Session()
+        session = self.connect_to_db()
 
         # Define the table and metadata
         metadata = db.MetaData()
-        metadata.reflect(bind=self.engine)
+        metadata.reflect(bind = self.engine)
         your_table = metadata.tables[self.table_name]
 
         # Clear data in the table
@@ -75,8 +85,7 @@ class table_stats:
 
     # Ver tablas en la base de datos
     def check_db(self):
-        Session = sessionmaker(bind=self.engine)
-        session = Session()
+        session = self.connect_to_db()
 
         # Define Metadata
         metadata = db.MetaData()
@@ -94,11 +103,11 @@ class table_stats:
 
     # Ver ultimos 20 valores de tabla
     def check_last_value(self, count):
-        Session = sessionmaker(bind = self.engine)
-        session = Session()
-
+        session = self.connect_to_db()
         results = session.query(model.Salud).order_by(model.Salud.Id.desc()).limit(count).all()
         results = results[::-1]
         for result in results:
             print(f"{result.Id} \t {result.F} \t {result.I} \t {result.P}")
             
+
+    

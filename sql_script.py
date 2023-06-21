@@ -4,7 +4,7 @@ import my_sql as f
 # Database      = dato.db
 # Table_name    = salud_table
 
-my_table = f.table_stats()
+my_table = f.my_table_functions()
 #print(my_table)
 
 # Create database
@@ -20,7 +20,7 @@ my_table = f.table_stats()
 #print(my_table.check_table())
 
 # Clear table
-print(my_table.clear_table())
+#print(my_table.clear_table())
 
 # Delete table
 #print(my_table.delete_table())
@@ -29,4 +29,4 @@ print(my_table.clear_table())
 #my_table.check_db()
 
 # View last n values
-#my_table.check_last_value(10)
+my_table.check_last_value(10)

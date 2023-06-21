@@ -1,12 +1,10 @@
 from flask import Flask, jsonify, render_template
 from models import Salud as Data
 from models import mac, cargadora, id_empresa
-#import subprocess
-#import re
+
 import logging
 from extensions import db
 import math
-import json
 import time
 
 
@@ -35,10 +33,10 @@ def create_app():
 
     @app.route("/salud/size")
     def hello_world():
-        #size = len(Data.query.all())
-        #number_packages = math.ceil(size / packages_size)
-        #return f"{number_packages}"
-        return "585"
+        size = len(Data.query.all())
+        number_packages = math.ceil(size / packages_size)
+        return f"{number_packages}"
+        #return "585"
 
     @app.route("/salud/total")
     def total():
@@ -67,10 +65,8 @@ def create_app():
     return app
 
 
-#output = subprocess.check_output(['ifconfig', 'wlan0']).decode('utf-8')
-#print(output)
-#ip_address = re.search(r'inet (\d+\.\d+\.\d+\.\d+)', output).group(1)
 app = create_app()
+
 if __name__ == '__main__':
     time.sleep(5)
     app.run(host = ip_default, port = 5000)
