@@ -107,62 +107,62 @@ lista_id = {
 # Usaremos este diccionario para extraer los datos a publicar
 # Segun el mensaje CAN que llega
                     # tag_config("TAG", StartByte, LenByte, Scale, Offset)
-id_can_datos = {array_id[0] :   { 
+id_can_datos = {array_id[0] :   [ 
                                 tag_config("RPM", 4, 2, 0.125, 0),            # 190/
                                 tag_config("TorqueActual", 3, 1, 1, -125)    # 513/
-                                },
+                ],
 
-                array_id[1] :   { 
+                array_id[1] :   [ 
                                 tag_config("RPMDeseado",2,2,0.125,0),       # 515/
                                 tag_config("PTorque",1,1,1,-125)           # 514/
-                                },
+                ],
 
-                array_id[2] :   { 
+                array_id[2] :   [ 
                                 tag_config("Fcarga",3,1,1,0),           # 92/
                                 tag_config("Acelerador",2,1,0.4,0)        # 91/
-                                },
+                ],
 
-                array_id[3] :   {  
+                array_id[3] :   [  
                                 tag_config("TAdmision",3,1,1,-40),        # 105/
                                 tag_config("PAdmision",2,1,2,0),        # 102/
                                 tag_config("PSalida",4,1,2,0)           # 106/
-                                },
+                ],
 
-                array_id[4] :   {  
+                array_id[4] :   [  
                                 tag_config("CCombustible",5,4,0.5,0)      # 250/
-                                },
+                ],
 
-                array_id[5] :   {  
+                array_id[5] :   [  
                                 tag_config("PLubricante",4,1,4,0),      # 100/
                                 tag_config("NRefrigerante",8,1,0.4,0),    # 111/
                                 tag_config("PCombustible",1,1,4,0)      # 94/
-                                },
+                ],
 
-                array_id[6] :   {  
+                array_id[6] :   [  
                                 tag_config("PAtmosferica",1,1,0.5,0)      # 108/
-                                },
+                ],
 
-                array_id[7] :   {  
+                array_id[7] :   [  
                                 tag_config("Voltaje",5,2,0.05,0)           # 168/
-                                },
+                ],
 
-                array_id[8] :   {
+                array_id[8] :   [
                                 tag_config("TCombutible",2,1,1,-40),      # 174/
                                 tag_config("TLubricante",3,2,0.03125,-273),      # 175/
                                 tag_config("TRefrigerante",1,1,1,-40)     # 110/
-                                },
+                ],
 
-                array_id[9] :   {
+                array_id[9] :   [
                                 tag_config_bits("EMotor", 5.7, 2, [1,2,3,4] )     
-                                },
+                ],
                                                                                                                           # 1107/
-                array_id[10] :   {
+                array_id[10] :   [
                                 tag_config("QCombustible",1,2,0.05,0)      # 183/
-                                },
+                ],
 
-                array_id[11] :   {
+                array_id[11] :   [
                                 tag_config("Horometro",1,4,0.05,0)      # 247/
-                                }
+                ]
                 }
 
 
