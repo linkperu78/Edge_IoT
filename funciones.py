@@ -44,11 +44,21 @@ class tag_config:
 
 # Clase para datos que solo forman bits    
 class tag_config_bits:
-    def __init__(self, tag_name, init_bit, len_bit,dictionary):
+    def __init__(self, tag_name, init_bit, len_bit, dictionary):
         self.tag_name   = tag_name
         self.init_byte  = init_bit
         self.len_byte   = len_bit
         self.dict       = dictionary
+        self.flag       = 1
+
+    def get_id(self):
+        return self.tag_name
+
+    def get_flag(self):
+        return self.flag
+
+    def set_flag(self, value):
+        self.flag = value
 
     # Obtenemos el array: [ Tag_Value, "Tag_name" ] 
     def values_to_pub(self, hex_array):

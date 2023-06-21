@@ -138,7 +138,7 @@ if __name__ == "__main__":
                 for pos_id, freq in enumerate(freq_array):
                     if( elapse_time % freq == 0 ):
                         _tag = my_list_id[pos_tag]
-                        id_class = my_dictionary[_tag][pos_id]
+                        id_class = list(my_dictionary[_tag])[pos_id]
                         id_class.set_flag(1)
                         print(f"Se ha habilitado el id : {id_class.get_id()}")
 
