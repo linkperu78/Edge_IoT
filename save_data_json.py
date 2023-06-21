@@ -51,8 +51,8 @@ def leer_canbus(queue):
                 for obj in objetos:
                     value, tag = obj.values_to_pub(data_str)
                     if ( obj.is_new_value(value) > 0 ):
-                        print([id_tag, value])
-                        #queue.put([str(timestamp), value, tag])
+                        print([tag, value])
+                        queue.put([str(timestamp), value, tag])
                 continue
 
             for obj in objetos:
@@ -60,7 +60,7 @@ def leer_canbus(queue):
                 value, tag = obj.values_to_pub(data_str)
                 resultado = resultado + [value, tag]    #payload = [ timestamp - value - tag_id]
                 print(resultado)
-                #queue.put(resultado)
+                queue.put(resultado)
 
         except Exception as e:
             print(e)

@@ -6,30 +6,7 @@ class tag_config:
         self.len_byte   = len_byte
         self.scale      = scale
         self.offset     = offset
-  
-    # Convertimos los bytes correspondientes a un valor entero segun TAG
-    def get_value_from_can(self, hex_array):
-        temp_hex = "0x"
-        for i in range(self.len_byte):
-            pos = self.init_byte-i+self.len_byte-2
-            temp_hex += hex_array[pos]
-
-        return int(temp_hex,16)*self.scale + self.offset
-    
-    # Obtenemos el array: [ Tag_Value, "Tag_name" ]
-    def values_to_pub(self, array_hexadecimal):
-        array = [self.get_value_from_can(array_hexadecimal), self.tag_name]
-        return array
-
-
-class tag_config_special:
-    def __init__(self, tag_name, init_byte, len_byte, scale, offset):
-        self.tag_name   = tag_name
-        self.init_byte  = init_byte
-        self.len_byte   = len_byte
-        self.scale      = scale
-        self.offset     = offset
-        self.actual_value = 0
+        self.actual = 0
   
     # Convertimos los bytes correspondientes a un valor entero segun TAG
     def get_value_from_can(self, hex_array):
@@ -53,7 +30,7 @@ class tag_config_special:
     def values_to_pub(self, array_hexadecimal):
         array = [self.get_value_from_can(array_hexadecimal), self.tag_name]
         return array
-
+    
 
 # Clase para datos que solo forman bits    
 class tag_config_bits:
@@ -108,13 +85,13 @@ lista_id = {
 # Segun el mensaje CAN que llega
                     # tag_config("TAG", StartByte, LenByte, Scale, Offset)
 id_can_datos = {array_id[0] :   { 
-                                tag_config_special("RPM", 4, 2, 0.125, 0),            # 190/
-                                tag_config_special("TorqueActual", 3, 1, 1, -125)    # 513/
+                                tag_config("RPM", 4, 2, 0.125, 0),            # 190/
+                                tag_config("TorqueActual", 3, 1, 1, -125)    # 513/
                                 },
 
                 array_id[1] :   { 
-                                tag_config_special("RPMDeseado",2,2,0.125,0),       # 515/
-                                tag_config_special("PTorque",1,1,1,-125)           # 514/
+                                tag_config("RPMDeseado",2,2,0.125,0),       # 515/
+                                tag_config("PTorque",1,1,1,-125)           # 514/
                                 },
 
                 array_id[2] :   { 
