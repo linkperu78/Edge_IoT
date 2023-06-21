@@ -2,7 +2,7 @@
 import gpio_functions as gp
 import time
 import multiprocessing
-from multiprocessing import Process, Queue
+from multiprocessing import Process, Queue, Pool
 import queue as q
 
 # Librerias para desencriptar mensajes can
@@ -57,49 +57,57 @@ def leer_canbus(queue):
                         #print([ str(timestamp), value, tag ])
                         queue.put([str(timestamp), value, tag])
                 continue
-
+            
+            # Casos en los que se filtran por frecuencias
             objetos = my_dictionary[id_tag]
+
             for obj in objetos:
+                status = obj.get_flag()
+                if status < 1:
+                    continue    
                 resultado = [str(timestamp)]     #payload = [ timestamp ]
                 value, tag = obj.values_to_pub(data_str)
                 resultado = resultado + [value, tag]    #payload = [ timestamp - value - tag_id]
+                
                 print(f"Resultado = {resultado}")
-                #queue.put(resultado)
-
+                queue.put(resultado)
+                obj.set_flag(0)
+                
         except Exception as e:
             print(e)
-
-def change_status():
-    pass
-
 
 
 def save_in_table(queue):
     led_state = 1
-    #gp.set_code_utf()
-    #gp.gpio_output(green_led)
     time_prev = int(time.time())
     while True:
         try:
+            resultado = queue.get( timeout = 5 )
+            
             time_now = int( time.time() )
             if( time_now - time_prev ) > 2:
                 time_prev = time_now
                 led_state = 1- led_state
                 gp.blink(led_state)
-
-            resultado = queue.get( timeout = 5 )
+            
             sql.insert_sql_PIF(resultado[1], resultado[2], resultado[0], session)
 
-        except q.Empty as e:
+        except q.Empty:
             gp.on_pin(green_led)
 
-        except Exception as e:
+        except Exception:
             pass
 
 
 my_dictionary = can_lib.id_can_datos
 my_list_id = list( my_dictionary.keys() )
 my_special_id = can_lib.special_id
+
+my_freq_array = []
+for _id in my_list_id:
+    # Obtenemos el array de freq de cada TAG
+    my_freq_array.append(can_lib.lista_id[_id])
+print(my_freq_array)
 
 table = sql(my_database_name, my_table_name)
 session = table.connect_to_db()
@@ -111,20 +119,33 @@ if __name__ == "__main__":
     gp.gpio_output(green_led)
     gp.on_pin(green_led)
 
+    pool = Pool( processes = 2 )
+    
     queue = Queue()
 
     print(" -------------------- START -------------------- ")
-    # First Process
-    read_process = Process( target = leer_canbus, args = (queue, ) )
+    result1 = pool.apply_async(leer_canbus, args= (queue, ))
+    result2 = pool.apply_async(save_in_table, args= (queue, ))
+    #result3 = pool.apply_async(change_status, args= (queue2,))
 
-    # Second Process
-    save_process = Process( target = save_in_table, args = (queue, ) )
+    initial_time = int(time.time())
+    try:
+        while True:
+            actual_time = int(time.time())
+            # Despues de un tiempo, habilitamos todas las clases:
+            elapse_time = actual_time - initial_time
+            for pos_tag, freq_array in enumerate(my_freq_array):
+                for pos_id, freq in enumerate(freq_array):
+                    if( elapse_time % freq == 0 ):
+                        _tag = my_list_id[pos_tag]
+                        id_class = my_dictionary[_tag][pos_id]
+                        id_class.set_flag(1)
+                        print(f"Se ha habilitado el id : {id_class.get_id()}")
 
-    # Start processes
-    read_process.start()
-    save_process.start()
-
-    # Wait for both process to finish
-    read_process.join()
-    save_process.join()
-
+            time.sleep(1)
+            
+    except KeyboardInterrupt:
+        # Stop the tasks when Ctrl+C is pressed
+        pool.terminate()
+        pool.join()
+        print("Tasks terminated.")

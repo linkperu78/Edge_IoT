@@ -8,6 +8,16 @@ class tag_config:
         self.offset     = offset
         self.actual_value = 0
         self.change_needed = 0.03 * ( ( 2 ** len_byte ) * scale - offset )
+        self.flag = 1
+
+    def get_id(self):
+        return self.tag_name
+
+    def get_flag(self):
+        return self.flag
+
+    def set_flag(self, value):
+        self.flag = value
 
     def is_new_value(self, input_value):
         # Retornamos 1 si el valor es sustancialmente diferente
@@ -68,18 +78,18 @@ special_id = ["f004", "fedf"]
 #special_id = ["f004"]
 
 lista_id = {
-    array_id[0] : 30,        #   RPM, TorqueActual
-    array_id[1] : 120,       #   RPMDeseado, PTorque
-    array_id[2] : 60,        #   Fcarga, Acelerador
-    array_id[3] : 60,        #   TAdmision, PAdmision, PSalida
-    array_id[4] : 60,        #   CCombustible
-    array_id[5] : 300,       #   PLubricante, NRefrigerante, PCombustible
-    array_id[6] : 600,       #   PAtmosferica
-    array_id[7] : 1200,      #   Voltaje
-    array_id[8] : 300,       #   TCombustible, TLubricante, TRefrigerante
-    array_id[9] : 3600,      #   EMotor
-    array_id[10] : 120,      #   QCombustible
-    array_id[11] : 3600,     #   Horometro
+    array_id[0] :   [30, 30],           #   RPM, TorqueActual
+    array_id[1] :   [120, 120],         #   RPMDeseado, PTorque
+    array_id[2] :   [60, 60],           #   Fcarga, Acelerador
+    array_id[3] :   [60, 60],           #   TAdmision, PAdmision, PSalida
+    array_id[4] :   [60],               #   CCombustible
+    array_id[5] :   [300, 300, 300],    #   PLubricante, NRefrigerante, PCombustible
+    array_id[6] :   [600],              #   PAtmosferica
+    array_id[7] :   [1200],             #   Voltaje
+    array_id[8] :   [300, 300, 300],    #   TCombustible, TLubricante, TRefrigerante
+    array_id[9] :   [3600],             #   EMotor
+    array_id[10] :  [120],              #   QCombustible
+    array_id[11] :  [3600],             #   Horometro
 }
 
 
