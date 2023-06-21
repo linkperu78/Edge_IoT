@@ -4,6 +4,7 @@ import time
 import multiprocessing
 from multiprocessing import Process, Queue, Manager
 import queue as q
+import traceback
 
 # Librerias para desencriptar mensajes can
 import can
@@ -41,7 +42,7 @@ def leer_canbus(queue, obj_list):
             # Desencriptamos el mensaje CAN recibido
             timestamp, id_tag, data_str = can_lib.get_data_canbus( str(msg) )
             timestamp = int(float(timestamp))
-            objetos = []
+            
             # Buscamos que TAG estan en el ID recibido
             
             if not id_tag in my_list_id:
@@ -50,7 +51,7 @@ def leer_canbus(queue, obj_list):
             
             # Caso excepcional para los ID especiales
             if id_tag in my_special_id:
-                objetos = obj_list[id_tag]
+                objetos = my_dictionary[id_tag]
                 for obj in objetos:
                     value, tag = obj.values_to_pub(data_str)
                     if ( obj.is_new_value(value) > 0 ):
@@ -62,13 +63,15 @@ def leer_canbus(queue, obj_list):
             # obj_list -> Matriz de las classes
 
             posicion_i = my_list_id.index(id_tag)
-            
+            #print(f"posicion = {posicion_i}")
+
             # Array de classes segun TAG
             array_class = obj_list[posicion_i]
+            #print("---")
             i = 0
             for _class in array_class:
                 status = _class.get_flag()
-                print(f"ID : {_class.get_id()} , Status = {status}")
+                #print(f"ID : {_class.get_id()} , Status = {status}")
                 if status < 1:
                     continue    
                 resultado = [str(timestamp)]     #payload = [ timestamp ]
@@ -78,13 +81,15 @@ def leer_canbus(queue, obj_list):
                 #print(f"Resultado = {resultado}")
                 queue.put(resultado)
                 _class.set_flag(0)
+                #print(f"Se envio comoo dato {_class.get_id()}")
+                #print("-------------------------------")
                 array_class[i] = _class
                 i += 1
             obj_list[posicion_i] = array_class
                 
         except Exception as e:
-            print(e)
-
+            print(f"Error en el proceso leer_canbus : {e}")
+            traceback.print_exc()
 
 def save_in_table(queue):
     led_state = 1
@@ -92,19 +97,20 @@ def save_in_table(queue):
     while True:
         try:
             resultado = queue.get( timeout = 5 )
-            print(f"Guardando: {resultado}")
+            #print(f"Guardando: {resultado}")
             time_now = int( time.time() )
             if( time_now - time_prev ) > 2:
                 time_prev = time_now
-            led_state = 1- led_state
-            gp.blink(led_state)
+            led_state = 1 - led_state
+            gp.blink(green_led,led_state)
             
             sql.insert_sql_PIF(resultado[1], resultado[2], resultado[0], session)
 
         except q.Empty:
             gp.on_pin(green_led)
 
-        except Exception:
+        except Exception as e:
+            print(f"Error ocurrido en save_in_table: {e}")
             pass
 
 
@@ -118,7 +124,7 @@ my_freq_array = []
 for _id in my_list_id:
     # Obtenemos el array de freq de cada TAG
     my_freq_array.append(can_lib.lista_id[_id])
-print(my_freq_array)
+#print(my_freq_array)
 
 table = sql(my_database_name, my_table_name)
 session = table.connect_to_db()
@@ -160,6 +166,7 @@ if __name__ == "__main__":
                     if( elapse_time % freq != 0 ):
                         continue
                     _class.set_flag(1)
+                    #print(f"Se habilito {_class.get_id()}")
                     temp_array_class[pos_id] = _class
                 shared_list[pos_tag] = temp_array_class
             time.sleep(1)

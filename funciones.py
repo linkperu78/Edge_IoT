@@ -88,15 +88,15 @@ special_id = ["f004", "fedf"]
 #special_id = ["f004"]
 
 lista_id = {
-    array_id[0] :   [30, 30],           #   RPM, TorqueActual
-    array_id[1] :   [120, 120],         #   RPMDeseado, PTorque
-    array_id[2] :   [60, 60],           #   Fcarga, Acelerador
-    array_id[3] :   [60, 60],           #   TAdmision, PAdmision, PSalida
-    array_id[4] :   [60],               #   CCombustible
-    array_id[5] :   [300, 300, 300],    #   PLubricante, NRefrigerante, PCombustible
-    array_id[6] :   [600],              #   PAtmosferica
-    array_id[7] :   [1200],             #   Voltaje
-    array_id[8] :   [300, 300, 300],    #   TCombustible, TLubricante, TRefrigerante
+    array_id[0] :   [5, 5],           #   RPM, TorqueActual
+    array_id[1] :   [6, 6],         #   RPMDeseado, PTorque
+    array_id[2] :   [8, 8],           #   Fcarga, Acelerador
+    array_id[3] :   [10, 10],           #   TAdmision, PAdmision, PSalida
+    array_id[4] :   [12],               #   CCombustible
+    array_id[5] :   [15, 15, 15],    #   PLubricante, NRefrigerante, PCombustible
+    array_id[6] :   [20],              #   PAtmosferica
+    array_id[7] :   [25],             #   Voltaje
+    array_id[8] :   [30, 30, 30],    #   TCombustible, TLubricante, TRefrigerante
     array_id[9] :   [3600],             #   EMotor
     array_id[10] :  [120],              #   QCombustible
     array_id[11] :  [3600],             #   Horometro
