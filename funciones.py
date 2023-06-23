@@ -36,7 +36,9 @@ class tag_config(base_config):
     # Obtenemos el array: [ Tag_Value, "Tag_name" ]
     def values_to_pub(self, array_hexadecimal, time_pass):
         value = self.get_value_from_can(array_hexadecimal)
-        if time_pass % self.freq == 0 and self.time_prev < time_pass :
+        flag = time_pass % self.freq
+        print(f"Time: {self.time_prev} /  {time_pass} - freq = {self.freq} - flag = {flag}")
+        if flag == 0 and self.time_prev < time_pass :
             self.time_prev = time_pass
             return [value, self.tag_name ]
         return None

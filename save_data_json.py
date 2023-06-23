@@ -1,8 +1,7 @@
 # Librerias para multi task
 import gpio_functions as gp
 import time
-import multiprocessing
-from multiprocessing import Process, Queue, Manager
+from multiprocessing import Process, Queue
 import queue as q
 import traceback
 
