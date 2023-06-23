@@ -41,22 +41,23 @@ def leer_canbus(queue, obj_list):
             
             # Desencriptamos el mensaje CAN recibido
             timestamp, id_tag, data_str = can_lib.get_data_canbus( str(msg) )
-            timestamp = int(float(timestamp))
+            #timestamp = int(float(timestamp))
             
             # Buscamos que TAG estan en el ID recibido
             
             if not id_tag in my_list_id:
                 #print(f"No se encontro el tag: {id_tag}")
                 continue
-            
+            timestamp = int(time.time())
             # Caso excepcional para los ID especiales
             if id_tag in my_special_id:
                 objetos = my_dictionary[id_tag]
                 for obj in objetos:
                     value, tag = obj.values_to_pub(data_str)
-                    if ( obj.is_new_value(value) > 0 ):
-                        #print([ str(timestamp), value, tag ])
-                        queue.put([str(timestamp), value, tag])
+                    new_value = obj.is_new_value(value)
+                    if ( new_value == None ):
+                        continue
+                    queue.put( [str(timestamp), new_value, tag] )
                 continue
             
             # Casos en los que se filtran por frecuencias
@@ -74,10 +75,11 @@ def leer_canbus(queue, obj_list):
                 #print(f"ID : {_class.get_id()} , Status = {status}")
                 if status < 1:
                     continue    
+                #print()
                 resultado = [str(timestamp)]     #payload = [ timestamp ]
                 value, tag = _class.values_to_pub(data_str)
                 resultado = resultado + [value, tag]    #payload = [ timestamp - value - tag_id]
-                
+                #print(f"Se guardo el tag {_class.get_id()}")
                 #print(f"Resultado = {resultado}")
                 queue.put(resultado)
                 _class.set_flag(0)
@@ -163,7 +165,9 @@ if __name__ == "__main__":
                 temp_array_class = shared_list[pos_tag]
                 for pos_id, freq in enumerate(freq_array):
                     _class = temp_array_class[pos_id]
-                    if( elapse_time % freq != 0 ):
+                    fre = freq
+                    #fre = int(freq/10)
+                    if( elapse_time % fre != 0 ):
                         continue
                     _class.set_flag(1)
                     #print(f"Se habilito {_class.get_id()}")

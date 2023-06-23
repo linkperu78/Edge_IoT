@@ -7,7 +7,8 @@ class tag_config:
         self.scale      = scale
         self.offset     = offset
         self.actual_value = 0
-        self.change_needed = 0.03 * ( ( 2 ** len_byte ) * scale - offset )
+        #self.change_needed = 0.03 * ( ( 2 ** (8*len_byte) ) * scale - offset )
+        self.change_needed = 50
         self.flag = 1
 
     def get_id(self):
@@ -21,12 +22,12 @@ class tag_config:
 
     def is_new_value(self, input_value):
         # Retornamos 1 si el valor es sustancialmente diferente
-        # Retornamos 0 para ignorar el valor entrante
         if ( abs(input_value - self.actual_value) >  self.change_needed):
+            #print(f"valor actual = {self.actual_value} - valor nuevo = {input_value} - cambio requerido = {self.change_needed}")
             self.actual_value = input_value
-            return 1
-        else:
-            return 0
+        elif self.flag < 1:
+            return None
+        return self.actual_value
 
     # Convertimos los bytes correspondientes a un valor entero segun TAG
     def get_value_from_can(self, hex_array):
@@ -88,15 +89,15 @@ special_id = ["f004", "fedf"]
 #special_id = ["f004"]
 
 lista_id = {
-    array_id[0] :   [5, 5],           #   RPM, TorqueActual
-    array_id[1] :   [6, 6],         #   RPMDeseado, PTorque
-    array_id[2] :   [8, 8],           #   Fcarga, Acelerador
-    array_id[3] :   [10, 10],           #   TAdmision, PAdmision, PSalida
-    array_id[4] :   [12],               #   CCombustible
-    array_id[5] :   [15, 15, 15],    #   PLubricante, NRefrigerante, PCombustible
-    array_id[6] :   [20],              #   PAtmosferica
-    array_id[7] :   [25],             #   Voltaje
-    array_id[8] :   [30, 30, 30],    #   TCombustible, TLubricante, TRefrigerante
+    array_id[0] :   [5, 60],           #   RPM, TorqueActual
+    array_id[1] :   [5, 120],         #   RPMDeseado, PTorque
+    array_id[2] :   [120, 60],           #   Fcarga, Acelerador
+    array_id[3] :   [600, 60, 120],           #   TAdmision, PAdmision, PSalida
+    array_id[4] :   [60],               #   CCombustible
+    array_id[5] :   [300, 1200, 300],    #   PLubricante, NRefrigerante, PCombustible
+    array_id[6] :   [600],              #   PAtmosferica
+    array_id[7] :   [1200],             #   Voltaje
+    array_id[8] :   [300, 300, 1200],    #   TCombustible, TLubricante, TRefrigerante
     array_id[9] :   [3600],             #   EMotor
     array_id[10] :  [120],              #   QCombustible
     array_id[11] :  [3600],             #   Horometro
