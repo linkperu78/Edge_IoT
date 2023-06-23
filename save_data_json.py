@@ -35,20 +35,22 @@ def leer_canbus(queue_can, queue_time):
         try:
             elapse_time = int( time.time() ) + 1 - init_time
         
-            if not queue_time.empty():
-                timestamp, id_tag, data_str = queue_time.get()
-                array_class = my_dict[id_tag]
+            if queue_time.empty():
+                continue
+            
+            timestamp, id_tag, data_str = queue_time.get()
+            array_class = my_dict[id_tag]
 
-                # Array de classes segun TAG
-                for _class in array_class:
-                    resultado = [str(timestamp)]     #payload = [ timestamp ]
-                    array_result = _class.values_to_pub(data_str, elapse_time)
-                    if array_result == None :
-                        continue
-                    value, tag = array_result
-                    resultado = resultado + [value, tag]    #payload = [ timestamp - value - tag_id]  
-                    #print(f"Resultado = {resultado}")
-                    queue_can.put(resultado)
+            # Array de classes segun TAG
+            for _class in array_class:
+                resultado = [str(timestamp)]     #payload = [ timestamp ]
+                array_result = _class.values_to_pub(data_str, elapse_time)
+                if array_result == None :
+                    continue
+                value, tag = array_result
+                resultado = resultado + [value, tag]    #payload = [ timestamp - value - tag_id]  
+                #print(f"Resultado = {resultado}")
+                queue_can.put(resultado)
                     
         except Exception as e:
             print(f"Error en el proceso leer_canbus : {e}")
