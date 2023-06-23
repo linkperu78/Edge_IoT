@@ -21,6 +21,7 @@ if __name__ == '__main__':
     
     while True:
         current = ina219.getCurrent_mA()
+        #print(f"Corriente actual = {current}")
         if(current < - 100) :
             enable_off = 1
         else:

@@ -43,18 +43,20 @@ def leer_canbus(queue_can, queue_time):
                 for _fre in array_freq:
                     if (elapse_time % _fre != 0):
                         continue
-                    key_name = matrix_tag[_tag][_id]
-                    _class = my_dict[key_name]
+                    key_name = my_list_id[_tag]
+                    _class_array = my_dict[key_name]
+                    _class = _class_array[_id]
                     _class.flag = 1
                     _id += 1
                 _tag += 1
             
-            if queue_time.empty():
-                time.sleep(1)
+            rpsta = []
+            if not queue_time.empty():
+                rpsta = queue_time.get()
                 continue
             
-            timestamp, id_tag, data_str = queue_time.get()
-
+            timestamp, id_tag, data_str = rpsta
+            
             # Buscamos que TAG estan en el ID recibido
             if not id_tag in my_list_id:
                 #print(f"No se encontro el tag: {id_tag}")
@@ -71,7 +73,6 @@ def leer_canbus(queue_can, queue_time):
                 resultado = resultado + [value, tag]    #payload = [ timestamp - value - tag_id]  
                 #print(f"Resultado = {resultado}")
                 queue_can.put(resultado)
-                
         except Exception as e:
             print(f"Error en el proceso leer_canbus : {e}")
             traceback.print_exc()
@@ -88,7 +89,7 @@ def save_in_table(queue):
                 time_prev = time_now
             led_state = 1 - led_state
             gp.blink(green_led,led_state)
-            
+            print(f"SQL = {resultado}")
             sql.insert_sql_PIF(resultado[1], resultado[2], resultado[0], session)
 
         except q.Empty:

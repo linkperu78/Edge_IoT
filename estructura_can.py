@@ -1,9 +1,11 @@
 # Definimos la lista de variables a decodificar con su respectiva frecuencia deseada:
 list_tag = {
     # TAG   :   [Init byte, len_byte, scale, offset, freq]
-    "RPM"           :   [4, 2,      0.125, 0,       30],
+    "RPM"           :   [4, 2,      0.125, 0,       10],
+    #"RPM"           :   [4, 2,      0.125, 0,       30],
     "TorqueActual"  :   [3, 1,      1, -125,        60],
-    "RPMDeseado"    :   [2, 2,      0.125, 0,       120],
+    "RPMDeseado"    :   [2, 2,      0.125, 0,       10],
+    #"RPMDeseado"    :   [2, 2,      0.125, 0,       120],
     "PTorque"       :   [1, 1,      1, -125,        120],
     "Fcarga"        :   [3, 1,      1, 0,           120],
     "Acelerador"    :   [2, 1,      0.4, 0,         60],

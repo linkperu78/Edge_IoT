@@ -54,9 +54,11 @@ class special_tag_config(base_config):
 
     # Evaluamos si el valor cambio lo suficiente
     def get_value(self, input_value):
-        if ( abs(input_value - self.value) >  self.change):
+        print(f"Valor entrante = {input_value} - Valor actual = {self.value} - Change needed = {self.change}")
+        if ( abs(input_value - self.value) >=  self.change ):
             self.value = input_value
-            self.flag  = 1            
+            self.flag  = 1
+            print("Value changed")
         return self.value
         
     # Obtenemos el array: [ Tag_Value, "Tag_name" ]
@@ -64,16 +66,18 @@ class special_tag_config(base_config):
         # Si el valor es mayor al almanecado por la cantidad suficiente
         # Guardamos el nuevo valor y habilitamos el flag para su envio
         value = self.get_value_from_can(array_hexadecimal)
-        self.get_value(value)
+        pub_value = self.get_value(value)
 
         # Evaluamos si el flag esta habilitado:
         # SI no lo esta, enviamos "None"
         if self.flag < 1:
             return None
+
         # Si esta habilitado, enviamos el array : [value_decimal - tag_name ]
-        array = [self.get_value_from_can(array_hexadecimal), self.tag_name]
+        array = [pub_value, self.tag_name]
         # Desahilitamos el flag de envio
-        self.flag = 0 
+        self.flag = 0
+
         return array
 
 def create_dictionary():
@@ -113,9 +117,11 @@ def get_matrix_freq():
         for tag in array_tag:
             array_freq = list_tag[tag]
             array_freq = array_freq[-1]
+            array_freq = int( array_freq / 10 )
             array.append(array_freq)
         matrix_freq.append(array)
     return matrix_freq
+
 
 def get_matrix_tag():
     return estructura_can.my_tag
@@ -149,3 +155,4 @@ def get_data_canbus(msg_canbus):
             break; 
         i += 1
     return [time, id, data_canbus_str]
+
