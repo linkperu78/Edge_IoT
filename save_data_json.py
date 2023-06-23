@@ -29,50 +29,28 @@ while can0 is None:
 
 def leer_canbus(queue_can, queue_time):
     my_dict = can_lib.create_dictionary()
-    matrix_tag = can_lib.get_matrix_tag()
-    matrix_freq = can_lib.get_matrix_freq()
     my_list_id = can_lib.get_array_tag()
     init_time = int( time.time() )
 
     while True:
         try:
             elapse_time = int( time.time() ) + 1 - init_time
-            _tag = 0
-            for array_freq in matrix_freq:
-                _id = 0
-                for _fre in array_freq:
-                    if (elapse_time % _fre != 0):
-                        continue
-                    key_name = my_list_id[_tag]
-                    _class_array = my_dict[key_name]
-                    _class = _class_array[_id]
-                    _class.flag = 1
-                    _id += 1
-                _tag += 1
-            
-            rpsta = []
+        
             if not queue_time.empty():
-                rpsta = queue_time.get()
-                continue
-            
-            timestamp, id_tag, data_str = rpsta
-            
-            # Buscamos que TAG estan en el ID recibido
-            if not id_tag in my_list_id:
-                #print(f"No se encontro el tag: {id_tag}")
-                continue
-            
-            array_class = my_dict[id_tag]
-            # Array de classes segun TAG
-            for _class in array_class:
-                resultado = [str(timestamp)]     #payload = [ timestamp ]
-                array_result = _class.values_to_pub(data_str)
-                if array_result == None :
-                    continue
-                value, tag = array_result
-                resultado = resultado + [value, tag]    #payload = [ timestamp - value - tag_id]  
-                #print(f"Resultado = {resultado}")
-                queue_can.put(resultado)
+                timestamp, id_tag, data_str = queue_time.get()
+                array_class = my_dict[id_tag]
+
+                # Array de classes segun TAG
+                for _class in array_class:
+                    resultado = [str(timestamp)]     #payload = [ timestamp ]
+                    array_result = _class.values_to_pub(data_str, elapse_time)
+                    if array_result == None :
+                        continue
+                    value, tag = array_result
+                    resultado = resultado + [value, tag]    #payload = [ timestamp - value - tag_id]  
+                    #print(f"Resultado = {resultado}")
+                    queue_can.put(resultado)
+                    
         except Exception as e:
             print(f"Error en el proceso leer_canbus : {e}")
             traceback.print_exc()
@@ -103,6 +81,8 @@ def save_in_table(queue):
 table = sql(my_database_name, my_table_name)
 session = table.connect_to_db()
 
+my_list_id = can_lib.get_array_tag()
+
 if __name__ == "__main__":
 
     gp.set_code_utf()
@@ -126,9 +106,10 @@ if __name__ == "__main__":
             #print(f"Message = {msg}")
             if msg is None:
                 time.sleep(2)
-                #print("No data reciving ...")
                 continue
             timestamp, id_tag, data_str = can_lib.get_data_canbus( str(msg) )
+            if not id_tag in my_list_id:
+                continue
             timestamp = int(float(timestamp))
             queue_time.put([timestamp, id_tag, data_str])
    

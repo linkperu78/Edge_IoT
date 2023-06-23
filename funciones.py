@@ -10,7 +10,7 @@ class base_config:
         self.scale      = scale
         self.offset     = offset
         self.freq       = freq
-        self.flag       = 1
+        self.time_prev  = 0
         self.value      = 0
     
     def get_id(self):
@@ -34,52 +34,34 @@ class tag_config(base_config):
         super().__init__(tag_name, init_byte, len_byte, scale, offset, freq)
 
     # Obtenemos el array: [ Tag_Value, "Tag_name" ]
-    def values_to_pub(self, array_hexadecimal):
-        # Evaluamos si el flag esta habilitado:
-        # SI no lo esta, enviamos "None"
-        if self.flag < 1:
-            return None
-        # Si esta habilitado, enviamos el array : [value_decimal - tag_name ]
-        array = [self.get_value_from_can(array_hexadecimal), self.tag_name]
-        # Desahilitamos el flag de envio
-        self.flag = 0 
-        return array
-
+    def values_to_pub(self, array_hexadecimal, time_pass):
+        value = self.get_value_from_can(array_hexadecimal)
+        if time_pass % self.freq == 0 and self.time_prev < time_pass :
+            self.time_prev = time_pass
+            return [value, self.tag_name ]
+        return None
 
 
 class special_tag_config(base_config):
     def __init__(self, tag_name, init_byte, len_byte, scale, offset, freq, change_value):
         super().__init__(tag_name, init_byte, len_byte, scale, offset, freq)
         self.change = change_value
-
-    # Evaluamos si el valor cambio lo suficiente
-    def get_value(self, input_value):
-        print(f"Valor entrante = {input_value} - Valor actual = {self.value} - Change needed = {self.change}")
-        if ( abs(input_value - self.value) >=  self.change ):
-            self.value = input_value
-            self.flag  = 1
-            print("Value changed")
-        return self.value
-        
+    
     # Obtenemos el array: [ Tag_Value, "Tag_name" ]
-    def values_to_pub(self, array_hexadecimal):
+    def values_to_pub(self, array_hexadecimal, time_pass):
         # Si el valor es mayor al almanecado por la cantidad suficiente
         # Guardamos el nuevo valor y habilitamos el flag para su envio
         value = self.get_value_from_can(array_hexadecimal)
-        pub_value = self.get_value(value)
+        if( abs(self.value - value) > self.change ):
+            self.value = value
+            return [value , self.tag_name ]
+        if time_pass % self.freq == 0 and self.time_prev < time_pass :
+            self.time_prev = time_pass
+            return [self.value, self.tag_name ]
+        return None
 
-        # Evaluamos si el flag esta habilitado:
-        # SI no lo esta, enviamos "None"
-        if self.flag < 1:
-            return None
 
-        # Si esta habilitado, enviamos el array : [value_decimal - tag_name ]
-        array = [pub_value, self.tag_name]
-        # Desahilitamos el flag de envio
-        self.flag = 0
-
-        return array
-
+# Creamos un constructor de diccionarios
 def create_dictionary():
     my_tag = estructura_can.my_tag
     list_tag = estructura_can.list_tag
@@ -126,8 +108,10 @@ def get_matrix_freq():
 def get_matrix_tag():
     return estructura_can.my_tag
 
+
 def get_array_tag():
     return estructura_can.array_id
+
 
 # parameters: "Mensaje completo de can_bus "
 # return: timestamp , tag, data_byte
