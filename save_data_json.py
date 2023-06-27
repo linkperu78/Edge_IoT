@@ -44,7 +44,7 @@ def leer_canbus(queue_can, queue_time):
             # Array de classes segun TAG
             for _class in array_class:
                 resultado = [str(timestamp)]     #payload = [ timestamp ]
-                array_result = _class.values_to_pub(data_str, elapse_time)
+                array_result = _class.values_to_pub(data_str, elapse_time * 10)
                 if array_result == None :
                     continue
                 value, tag = array_result
@@ -68,7 +68,7 @@ def save_in_table(queue):
                 time_prev = time_now
             led_state = 1 - led_state
             gp.blink(green_led,led_state)
-            print(f"SQL = {resultado}")
+            #print(f"SQL = {resultado}")
             sql.insert_sql_PIF(resultado[1], resultado[2], resultado[0], session)
 
         except q.Empty:

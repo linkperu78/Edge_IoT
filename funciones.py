@@ -37,7 +37,7 @@ class tag_config(base_config):
     def values_to_pub(self, array_hexadecimal, time_pass):
         value = self.get_value_from_can(array_hexadecimal)
         flag = time_pass % self.freq
-        print(f"Time: {self.time_prev} /  {time_pass} - freq = {self.freq} - flag = {flag}")
+        #print(f"Time: {self.time_prev} /  {time_pass} - freq = {self.freq} - flag = {flag}")
         if flag == 0 and self.time_prev < time_pass :
             self.time_prev = time_pass
             return [value, self.tag_name ]
@@ -80,6 +80,7 @@ def create_dictionary():
         for id in array_id:
             #print(f"ID = {id}")
             _init, _len, _scale, _offset, _freq = list_tag[id]
+            #_freq = int( _freq / 10 )
             if id in estructura_can.especial_id:
                 change_value = estructura_can.dic_value[id]
                 new_class = special_tag_config(id, _init, _len, _scale, _offset, _freq, change_value)
