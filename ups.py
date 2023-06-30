@@ -5,6 +5,7 @@ from smbus2 import SMBus
 
 # Config Register (R/W)
 _REG_CONFIG                 = 0x00
+
 # SHUNT VOLTAGE REGISTER (R)
 _REG_SHUNTVOLTAGE           = 0x01
 
@@ -22,9 +23,6 @@ _REG_CALIBRATION            = 0x05
 
 # Default I2C Address
 _DEFAULT_ADDRESS            = 0x42
-
-# Default count_down
-_DEFAULT_COUNT_MAX          = 4
 
 
 class BusVoltageRange:

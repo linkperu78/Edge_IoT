@@ -1,27 +1,21 @@
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 from models import Salud as Data
 from models import mac, cargadora, id_empresa
 
-import logging
 from extensions import db
 import math
 import time
 
-
 id_maquina = cargadora
 packages_size = 300
 
-
-#database_name = 'back_data.db'
 database_name = 'dato.db'
-
 #ip_default = "192.168.18.181"
 ip_default =  "10.42.0.1"
 
-
 def create_app():
     app = Flask(__name__)
-    logging.getLogger('werkzeug').setLevel(logging.ERROR)
+    #logging.getLogger('werkzeug').setLevel(logging.ERROR)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + database_name
 
     db.init_app(app)
@@ -50,11 +44,16 @@ def create_app():
 
     @app.route('/salud/datos/<int:part>')
     def specific_data(part):
+        # Si un dispositivo se conecta, otorgamos acceso a la base de datos y adicionalmente
+        # seteamos la columna status como enviada, si se vuelve a solicitar, no se envia nada
         package_size = packages_size
         offset = (part - 1) * package_size
         limit = package_size
+
         data = Data.query.offset(offset).limit(limit).all()
+        
         original = [d.to_dict() for d in data]
+
         new_json = {
             "idEmpresa" : id_empresa,
             "idDispositivo" : mac,
@@ -68,5 +67,5 @@ def create_app():
 app = create_app()
 
 if __name__ == '__main__':
-    time.sleep(5)
-    app.run(host = ip_default, port = 5000)
+    #app.run(host = ip_default, port = 5000)
+    app.run()

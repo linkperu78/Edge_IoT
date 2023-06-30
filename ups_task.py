@@ -10,13 +10,15 @@ server_task = "server"
 can_status = 1
 server_status = 1
 
+_DEFAULT_COUNT_MAX = 4
+
 if __name__ == '__main__':
     print("Iniciamos el supervisor de bateria")
     ina219 = ups.INA219(addr = ups._DEFAULT_ADDRESS)
     enable_off = 0
     current = 0
     
-    count_down = ups._DEFAULT_COUNT_MAX
+    count_down = _DEFAULT_COUNT_MAX
     time.sleep(3)
     
     while True:
@@ -26,7 +28,7 @@ if __name__ == '__main__':
             enable_off = 1
         else:
             enable_off = 0
-            count_down = ups._DEFAULT_COUNT_MAX
+            count_down = _DEFAULT_COUNT_MAX
 
         if(enable_off):
             print(" Apagando el equipo en {:1.0f}".format(count_down))

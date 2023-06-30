@@ -8,7 +8,9 @@ import traceback
 # Librerias para desencriptar mensajes can
 import can
 import funciones as can_lib
-from my_sql import my_table_functions as sql
+import models as M
+import my_sql as SQL
+
 
 my_database_name = "dato.db"
 my_table_name = "salud_table"
@@ -28,7 +30,6 @@ while can0 is None:
 
 def leer_canbus(queue_can, queue_time):
     my_dict = can_lib.create_dictionary()
-    my_list_id = can_lib.get_array_tag()
     init_time = int( time.time() )
 
     while True:
@@ -43,13 +44,17 @@ def leer_canbus(queue_can, queue_time):
 
             # Array de classes segun TAG
             for _class in array_class:
-                resultado = [str(timestamp)]     #payload = [ timestamp ]
                 array_result = _class.values_to_pub(data_str, elapse_time * 10)
                 if array_result == None :
                     continue
                 value, tag = array_result
-                resultado = resultado + [value, tag]    #payload = [ timestamp - value - tag_id]  
-                #print(f"Resultado = {resultado}")
+                #payload = [ timestamp - value - tag_id]  
+                resultado = {
+                    'P'     : value,
+                    "I"     : tag,
+                    "F"     : str(timestamp),
+                    "Fecha" : timestamp
+                }
                 queue_can.put(resultado)
                     
         except Exception as e:
@@ -57,19 +62,29 @@ def leer_canbus(queue_can, queue_time):
             traceback.print_exc()
 
 def save_in_table(queue):
-    led_state = 1
-    time_prev = int(time.time())
+    led_state   = 1
+    time_prev   = int(time.time())
+    Model       = M.create_model_tpi(my_table_name)
+    engine      = SQL.create_engine(my_database_name)
+    session     = SQL.create_session(engine)
+
     while True:
         try:
             resultado = queue.get( timeout = 5 )
             #print(f"Guardando: {resultado}")
             time_now = int( time.time() )
-            if( time_now - time_prev ) > 2:
+            if( time_now - time_prev ) > 1:
                 time_prev = time_now
-            led_state = 1 - led_state
-            gp.blink(green_led,led_state)
+                led_state = 1 - led_state
+                gp.blink(green_led,led_state)
+            
             #print(f"SQL = {resultado}")
-            sql.insert_sql_PIF(resultado[1], resultado[2], resultado[0], session)
+            new_data = Model(P = resultado['P'], 
+                             I = resultado['I'], 
+                             F = resultado['F'],
+                             Fecha = resultado['Fecha'])
+            session.add(new_data)
+            session.commit()
 
         except q.Empty:
             gp.on_pin(green_led)
@@ -79,13 +94,9 @@ def save_in_table(queue):
             pass
 
 
-table = sql(my_database_name, my_table_name)
-session = table.connect_to_db()
-
 my_list_id = can_lib.get_array_tag()
 
 if __name__ == "__main__":
-
     gp.set_code_utf()
     gp.gpio_output(green_led)
     gp.on_pin(green_led)

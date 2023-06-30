@@ -1,32 +1,37 @@
-import my_sql as f
-
+import my_sql
+import models as M
 # By default:
 # Database      = dato.db
 # Table_name    = salud_table
 
-my_table = f.my_table_functions()
-#print(my_table)
+print(" ----------- Comenzando la declaracion de variables -----------")
+
+database_name_default = "dato.db"
+
+actual_model = M.create_model("salud_table")
+new_model = M.create_model_tpi("tpi_salud")
+
+print(" ----------- Comenzando la solucion ----------- ")
+#my_test_model = M.Salud
 
 # Create database
-#print(my_table.create_db())
+#print(my_sql.create_db("tpi"))
 
-# Delete database
-#print(my_table.delete_db())
+# Insert data
+#my_sql.insert_data(my_test_model, data_test)
 
-# Create table
-#rint(my_table.create_table())
+# Create a new table
+#my_sql.create_table(database_name_default, actual_model)
 
-# Check table
-#print(my_table.check_table())
+# Export Data
+#my_sql.export_data(database_name_default, actual_model, new_model)
 
-# Clear table
-print(my_table.clear_table())
+# View example of data in table
+#my_sql.get_all_values(database_name_default, my_test_model)
 
-# Delete table
-#print(my_table.delete_table())
+# Check some values
+my_sql.get_values(database_name_default, new_model, 200, 300)
 
-# View tables in database
-#my_table.check_db()
 
-# View last n values
-#my_table.check_last_value(10)
+# Check Database
+#my_sql.check_db(database_name_default)

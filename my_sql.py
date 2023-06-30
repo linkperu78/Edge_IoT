@@ -1,113 +1,153 @@
 # Librerias para SQL
-import sqlalchemy as db
+import sqlalchemy as SQL
 from sqlalchemy_utils import database_exists, create_database
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.exc import SQLAlchemyError
+import datetime
 
-import models as model
-from models import Salud as Data
+name_db = "dato.db"
 
-# Funciones para manejar creacion, chequeo o eliminacion
-#Creacion de clases
-class my_table_functions:
-    def __init__(self, database = "dato.db", table_name = "salud_table"):
-        self.database = database
-        self.table_name = table_name
-        self.engine = db.create_engine(f"sqlite:///instance/{database}")
+def create_engine(name_database = name_db):
+    return SQL.create_engine(f"sqlite:///instance/{name_database}")
 
-    # Create connection database
-    def connect_to_db(self):
-        Session = sessionmaker(bind = self.engine)
-        return Session()
+def create_session(engine):
+    Session = sessionmaker( bind = engine )
+    return Session()
 
 
-    # Save data in table 
-    def insert_sql_PIF(P_value, I_value, F_value, session):
-        new_data = Data(P=P_value, I=I_value, F=F_value)
+def create_db(database_name):
+    engine = create_engine(database_name)
+    if database_exists(engine.url):
+        return f"Database {database_name} : Already exists" 
+    create_database(engine.url)
+    return f"Database {database_name} : Created"
+
+
+def check_db(database_name):
+    print(f"\n\t ** Evaluando la base de datos: / {database_name} / **")
+    engine = create_engine(database_name)
+    session = create_session(engine)
+    metadata = SQL.MetaData()
+    metadata.reflect(bind = engine)
+
+    for table_name, table in metadata.tables.items():
+        print("")
+        #print(f"{table_name} - {table.columns.keys()}")
+        row_count = 0
+        with engine.connect() as connection:
+            query = SQL.text(f"SELECT COUNT(*) FROM {table_name}")
+            result = connection.execute(query)
+            row_count = result.scalar()
+            #print(row_count)
+        print(f"\t Table name = ** {table_name} **  with {row_count} datos")
+        for column in table.c:
+            print(f' - Column: {column.name} | Type: {column.type}')
+
+def get_tables_names(new_name_db = name_db):
+    engine = create_engine(new_name_db)
+    metadata = SQL.MetaData()
+    metadata.reflect(bind = engine)
+    array_table = []
+    for table_name, table in metadata.tables.items():
+        array_table.append(table_name)
+    return array_table
+        
+
+def create_table(name_db, Model):
+    engine = create_engine(name_db)
+    session = create_session(engine)
+    Model.metadata.create_all(bind = engine)
+    session.close()
+    return(f"Table '{Model.__tablename__}' created successfully.")
+
+
+def insert_data(Model, array_data):
+    try:
+        engine = create_engine(name_db)
+        session = create_session(engine)
+        new_data = Model(P = array_data['P'], I = array_data['I'], F = array_data['F'])
         session.add(new_data)
-        try:
-            session.commit()
-        except SQLAlchemyError as e:
-            session.rollback()
-            print("Error occurred:", e)
+        session.commit()
+        print("Sucess")
+    except Exception as e:
+        print(f"{e}")
 
 
-    # Creacion de base de datos
-    def create_db(self):
-        if not database_exists(self.engine.url):
-            create_database(self.engine.url)
-
-    # Eliminacion de la base de datos
-    def delete_db(self):
-        return "Eliminalo manualmente mano"
-
-    # Creacion de la tabla
-    def create_table(self):
-        metadata = db.MetaData()
-        columns = [
-            db.Column("Id", db.Integer, primary_key=True),
-            db.Column('P', db.Float),
-            db.Column('F', db.String(30)),
-            db.Column('I', db.String(30))
-        ]
-        table = db.Table(self.table_name, metadata, *columns)
-        table.create(bind=self.engine)
-        print(f"Table '{self.table_name}' created successfully.")
+def get_values(database, Model_table, offset, qty):
+    engine = create_engine(database)
+    session = create_session(engine)
+    results = ( session.query(Model_table)
+               .order_by(Model_table.Id)
+               .offset(offset)
+               .limit(qty)
+               .all() )
+    for r in results:
+        new_fecha = r.Fecha
+        dt_format = datetime.datetime.fromtimestamp(new_fecha)
+        date_string = dt_format.strftime('%Y-%m-%d')
+        msg = f"Id = {r.Id} - P = {r.P}\t - F = {r.F}\t - Fecha = {date_string}\t - I = {r.I}"
+        print(msg)
 
 
-    # Chequeo de la tabla
-    def check_table(self):
-        with self.engine.connect() as conn:
-            inspector  = db.inspect(conn)
-            columns = inspector.get_columns(self.table_name)
-        for column in columns:
-            print(f"Column name: {column['name']}")
-            print(f"Type: {column['type']}")
+def get_all_values(database, Model_table):
+    engine = create_engine(database)
+    session = create_session(engine)
+    results = ( session.query(Model_table)
+               .order_by(Model_table.Id)
+               #.offset(offset)
+               #.limit(qty)
+               .all() )
+    for r in results:
+        msg = f"Id = {r.Id} - P = {r.P} - F = {r.F} - I = {r.I}"
+        print(msg)
 
-    
-    # Clear the tabla data
-    def clear_table(self):
-        session = self.connect_to_db()
+def export_data(database, Model_source, Model_destiny):
+    try:
+        engine = create_engine(database)
+        session = create_session(engine)
+        #Get all data from source
+        original_data = session.query(Model_source).all()
 
-        # Define the table and metadata
-        metadata = db.MetaData()
-        metadata.reflect(bind = self.engine)
-        your_table = metadata.tables[self.table_name]
-
-        # Clear data in the table
-        delete_statement = your_table.delete()
-        session.execute(delete_statement)
+        for row in original_data:
+            new_fecha_int = int(row.F)
+            destination_row = Model_destiny(
+                Id = row.Id,
+                P = row.P,
+                F = row.F,
+                I = row.I,
+                Fecha = new_fecha_int
+            )
+            session.add(destination_row)
         session.commit()
 
-        # Close the session
-        session.close()
+    except Exception as e:
+        print(f"Error : {e}")
 
 
-    # Ver tablas en la base de datos
-    def check_db(self):
+def copy_table(name_db, name_original, name_copy):
+    engine = create_engine(name_db)
+    session = create_session(engine)
+    metadata = SQL.MetaData()
+
+    source_table = SQL.Table(name_original, metadata, autoload=True, autoload_with=engine)
+
+    target_table = source_table.tometadata(metadata, name = name_copy)
+    target_table.create(bind=engine, checkfirst=True)
+    session.execute(target_table.insert().from_select(target_table.columns.keys(), source_table.select()))
+    session.commit()
+
+'''
+    def get_data_from(self, name_id):
+        model = self.model
         session = self.connect_to_db()
-
-        # Define Metadata
-        metadata = db.MetaData()
-        
-        #Create reflect of database
-        metadata.reflect(bind = self.engine)
-
-        # Get the table names
-        tables_names = metadata.tables.keys()
-        print(tables_names)
-
-        # Close the session
-        session.close()
-
-
-    # Ver ultimos 20 valores de tabla
-    def check_last_value(self, count):
-        session = self.connect_to_db()
-        results = session.query(model.Salud).order_by(model.Salud.Id.desc()).limit(count).all()
-        results = results[::-1]
-        for result in results:
-            print(f"{result.Id} \t {result.F} \t {result.I} \t {result.P}")
-            
-
+        results = session.query(model).filter_by(I = name_id).all()
+        values = [result.P for result in results]
+        return values
     
+
+    def get_data_timestamp(self, name_id):
+        model = self.model
+        session = self.connect_to_db()
+        results = session.query(model).filter_by(I = name_id).all()
+        values = [result.F for result in results]
+        return values
+'''

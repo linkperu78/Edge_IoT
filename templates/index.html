@@ -1,9 +1,33 @@
-<!DOCTYPE html>
 <html>
 <head>
-    <title>Hello World</title>
+    <title>Graph Example</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <h1>Hello World</h1>
+    <canvas id="myChart"></canvas>
+    <script>
+        // Retrieve the data passed from Flask
+        var xValues = {{ x_values|tojson }};
+        var yValues = {{ y_values|tojson }};
+
+        // Create a chart using Chart.js
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: xValues,
+                datasets: [{
+                    label: 'Data',
+                    data: yValues,
+                    backgroundColor: 'rgba(0, 123, 255, 0.5)',
+                    borderColor: 'rgba(0, 123, 255, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+    </script>
 </body>
 </html>
