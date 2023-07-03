@@ -1,13 +1,16 @@
 # Librerias para SQL
-import sqlalchemy as SQL
-from sqlalchemy_utils import database_exists, create_database
-from sqlalchemy.orm import sessionmaker
+import sqlalchemy   as SQL
+import models       as M
 import datetime
 
-name_db = "dato.db"
+from sqlalchemy_utils   import database_exists, create_database
+from sqlalchemy.orm     import sessionmaker
+from header_values      import name_database as name_db
+
 
 def create_engine(name_database = name_db):
     return SQL.create_engine(f"sqlite:///instance/{name_database}")
+
 
 def create_session(engine):
     Session = sessionmaker( bind = engine )
@@ -27,7 +30,7 @@ def check_db(database_name):
     engine = create_engine(database_name)
     session = create_session(engine)
     metadata = SQL.MetaData()
-    metadata.reflect(bind = engine)
+    metadata.reflect( bind = engine )
 
     for table_name, table in metadata.tables.items():
         print("")
@@ -41,6 +44,7 @@ def check_db(database_name):
         print(f"\t Table name = ** {table_name} **  with {row_count} datos")
         for column in table.c:
             print(f' - Column: {column.name} | Type: {column.type}')
+
 
 def get_tables_names(new_name_db = name_db):
     engine = create_engine(new_name_db)
@@ -100,6 +104,7 @@ def get_all_values(database, Model_table):
         msg = f"Id = {r.Id} - P = {r.P} - F = {r.F} - I = {r.I}"
         print(msg)
 
+
 def export_data(database, Model_source, Model_destiny):
     try:
         engine = create_engine(database)
@@ -127,27 +132,31 @@ def copy_table(name_db, name_original, name_copy):
     engine = create_engine(name_db)
     session = create_session(engine)
     metadata = SQL.MetaData()
-
     source_table = SQL.Table(name_original, metadata, autoload=True, autoload_with=engine)
-
     target_table = source_table.tometadata(metadata, name = name_copy)
     target_table.create(bind=engine, checkfirst=True)
     session.execute(target_table.insert().from_select(target_table.columns.keys(), source_table.select()))
     session.commit()
 
-'''
-    def get_data_from(self, name_id):
-        model = self.model
-        session = self.connect_to_db()
-        results = session.query(model).filter_by(I = name_id).all()
-        values = [result.P for result in results]
-        return values
-    
 
-    def get_data_timestamp(self, name_id):
-        model = self.model
-        session = self.connect_to_db()
-        results = session.query(model).filter_by(I = name_id).all()
-        values = [result.F for result in results]
-        return values
-'''
+def actualizar_table_in_db(name_of_db = name_db):
+    current_date = datetime.datetime.now().strftime('%Y_%m_%d')
+    print("Buscando las bases de datos")
+    tables_names = get_tables_names()
+    found = 0
+    my_table_actual_name = "Salud_TPI_" + current_date
+    for name_table in tables_names:
+        # Si encontro una base de datos de hoy, no crea una nueva base 
+        if (name_table == my_table_actual_name) :
+            found = 1
+            break
+
+    # Encontramos una base de datos de hoy, seguimos usandolo
+    if found == 0:
+        # Como no encontramos una base de datos de hoy, creamos una nueva base
+        # y transferimos todos los datos en la tabla de no enviados a esta tabla
+        new_model = M.create_model_tpi(my_table_actual_name)
+        create_table(name_of_db, new_model)
+    else:
+        new_model = M.create_model_tpi(my_table_actual_name)
+    return new_model

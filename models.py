@@ -1,23 +1,35 @@
 from extensions import db
+import header_values as const
 
-mac = "456"
-cargadora = "AE-SC-03"
-id_empresa = 44
+class Salud_NE(db.Model):
+    __tablename__ = const.name_salud_no_enviados
+    Id = db.Column(db.Integer, nullable=False ,primary_key=True)
+    P = db.Column(db.Float)
+    I = db.Column(db.String(30))
+    F = db.Column(db.String(30))
 
-def create_model(table_name):
-    # Define the model class dynamically
-    class MyModel(db.Model):
-        __tablename__ = table_name
-        Id = db.Column(db.Integer, nullable=False ,primary_key=True)
-        P = db.Column(db.Float)
-        I = db.Column(db.String(30))
-        F = db.Column(db.String(30))
+    def to_dict(self):
+        return {
+        'P': self.P,
+        'I': self.I,
+        'F': self.F,
+        }
 
-        def to_dict(self):
-            msg = f"{self.Id}\t{self.P}\t{self.I}\t{self.F}"
-            return msg
-        
-    return MyModel
+
+class Pesaje_NE(db.Model):
+    __tablename__ = const.name_pesaje_no_enviados
+    Id = db.Column(db.Integer, nullable=False ,primary_key=True)
+    P = db.Column(db.Float)
+    I = db.Column(db.String(30))
+    F = db.Column(db.String(30))
+
+    def to_dict(self):
+        return {
+        'P': self.P,
+        'I': self.I,
+        'F': self.F,
+        }
+
 
 def create_model_tpi(table_name):
     # Define the model class dynamically
@@ -38,3 +50,7 @@ def create_model_tpi(table_name):
             }
 
     return MyTPIModel
+
+
+
+

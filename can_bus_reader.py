@@ -10,10 +10,12 @@ import can
 import funciones as can_lib
 import models as M
 import my_sql as SQL
+import header_values as const
 
 
-my_database_name = "dato.db"
-my_table_name = "salud_table"
+my_database_name = const.name_database
+my_table_name = const.name_salud_no_enviados
+
 green_led = 10
 
 # Abrimos el puerto can0, el programa no avanzara si no se abre
@@ -129,8 +131,6 @@ if __name__ == "__main__":
         # Stop the tasks when Ctrl+C is pressed
         process_1.terminate()
         process_2.terminate()
-
         process_1.join()
         process_2.join()
-
         print("Tasks terminated.")
