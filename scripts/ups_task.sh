@@ -4,6 +4,9 @@ cd Desktop/Edge_IoT
 
 echo Iniciando Tarea de UPS - watcher
 
+current_path=$(pwd)
+echo "Current directory = $current_path"
+
 # Activate Python Enviroment
 source focux_env/bin/activate
 

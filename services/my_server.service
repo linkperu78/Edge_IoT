@@ -1,0 +1,12 @@
+[Unit]
+Description=UPS Service
+After=multi-user.target
+
+[Service]
+Type=idle
+ExecStart=/home/jetson/Desktop/Edge_IoT/scripts/server_task.sh
+WorkingDirectory=/home/jetson/Desktop/Edge_IoT
+User=jetson
+
+[Install]
+WantedBy=multi-user.target

@@ -59,7 +59,7 @@ def leer_canbus(queue_can, queue_time):
                     "Fecha" : timestamp
                 }
                 #print(f"En cola = {resultado.keys()}")
-                #print(f"En cola = {resultado.values()}")
+                print(f"En cola = {resultado.values()}")
                 queue_can.put(resultado)
                     
         except Exception as e:
@@ -78,11 +78,12 @@ def save_in_table(queue):
             resultado = queue.get( timeout = 5 )
             print(f"Guardando: {resultado}")
             time_now = int( time.time() )
+            
             if( time_now - time_prev ) > 1:
                 time_prev = time_now
                 led_state = 1 - led_state
                 gp.blink(green_led,led_state)
-            print(" ----- ")
+            #print(" ----- ")
             my_model = M.Salud_NE()
             my_model.P = resultado['P']
             my_model.I = resultado['I']
@@ -93,7 +94,7 @@ def save_in_table(queue):
                                 #F = resultado['F'])
             session.add( my_model )
             session.commit()
-            print("done")
+            #print("done")
 
         except q.Empty:
             gp.on_pin(green_led)
@@ -106,6 +107,7 @@ def save_in_table(queue):
 my_list_id = can_lib.get_array_tag()
 
 if __name__ == "__main__":
+    print("INICIO")
     gp.set_code_utf()
     gp.gpio_output(green_led)
     gp.on_pin(green_led)

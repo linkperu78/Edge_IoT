@@ -130,27 +130,27 @@ def save_data():
     current_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
     # Save the data to a file
-    with open('/home/focux/Desktop/Focux_IoT/datalog.txt', 'a') as f:
-        f.write(f'- Time Alive: {uptime}\n')
-        f.write(f'    Current Date: {current_date}\n')
+    #with open('/home/focux/Desktop/Focux_IoT/datalog.txt', 'a') as f:
+    #    f.write(f'- Time Alive: {uptime}\n')
+    #    f.write(f'    Current Date: {current_date}\n')
 
 
 def shut_down():
     # Shutdown the device
     password = "focux"
-    sudo_command = f'echo "{password}" | sudo -S shutdown -h now'
+    sudo_command = 'echo "focux" | sudo -S shutdown -h now'
     subprocess.call(sudo_command, shell=True)
 
 
 def end_service(name):
     name_service = name + "_task.service"
-    command = f"sudo systemctl stop {name_service}"
+    command = "sudo systemctl stop" +  str(name_service)
 
     try:
         subprocess.run(command, check = True, shell = True)
-        print(f"{name_service} has been stopped")
+        #print(f"{name_service} has been stopped")
     except subprocess.CalledProcessError as e:
-        print(f"Failed to end the service: {name_service}, Error = {e}")
+        print(" Failed to end the service" + name_service + " Error = ")
 
 
 

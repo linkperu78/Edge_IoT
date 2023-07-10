@@ -1,6 +1,6 @@
 import ups
 import time
-import gpio_functions as g
+#import gpio_functions as g
 
 led_pin = 10
 
