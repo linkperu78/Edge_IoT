@@ -17,6 +17,7 @@ database_name = const.name_database
 M_actual_salud  = SQL.actualizar_table_in_db(database_name)
 M_salud_ne      = M.Salud_NE()
 M_pesaje_ne     = M.Pesaje_NE()
+M_salud_general = M.Salud_general()
 
 
 def create_app():
@@ -80,8 +81,36 @@ def create_app():
             return (new_json)
         except Exception as e:
             return f"Error type = {e}"
+    
+
+    @app.route('/general/salud/datos/<int:part>')
+    def general_salud_data(part):
+        # Si un dispositivo se conecta, otorgamos acceso a la base de datos y adicionalmente
+        # seteamos la columna status como enviada, si se vuelve a solicitar, no se envia nada
+        try:
+            package_size = packages_size
+            package_size = 10
+            offset = (part - 1) * package_size
+            limit = package_size
+
+            data = M_salud_general.query.offset(offset).limit(limit).all()
+            msg_package = [row.to_dict() for row in data]
+            
+            #print(msg_package)
+            new_json = {
+                "idEmpresa" : id_empresa,
+                "idDispositivo" : mac,
+                "Cargadora" : id_maquina,
+                "registro" : msg_package
+            }
+            return (new_json)
+        except Exception as e:
+            return f"Error type = {e}"
         
     return app
+
+
+
 
 
 app = create_app()

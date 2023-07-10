@@ -22,6 +22,7 @@ def get_jetson_mac_address(interface = 'eth0'):
 mac = get_jetson_mac_address()
 
 name_database = "dato.db"
+name_salud_general = "salud_table"
 name_salud_no_enviados = "salud_no_enviados"
 name_pesaje_no_enviados = "pesaje_no_enviados"
 package_size = 300
