@@ -53,6 +53,11 @@ class special_tag_config(base_config):
     def values_to_pub(self, array_hexadecimal, time_pass):
         # Si el valor es mayor al almanecado por la cantidad suficiente
         # Guardamos el nuevo valor y habilitamos el flag para su envio
+        if (self.tag_name == "pesaje"):
+            status = array_hexadecimal[0] + array_hexadecimal[1]
+            if array_hexadecimal[0] != "0101":
+                return None
+
         value = self.get_value_from_can(array_hexadecimal)
         if( abs(self.value - value) > self.change ):
             self.value = value
