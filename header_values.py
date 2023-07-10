@@ -4,7 +4,7 @@ import re
 # Funciones base
 def get_jetson_mac_address(interface = 'eth0'):
     try:
-        output = subprocess.check_output(['ipconfig', interface]).decode('utf-8')
+        output = subprocess.check_output(['ifconfig', interface]).decode('utf-8')
         mac_address = re.search(r'(\w\w:\w\w:\w\w:\w\w:\w\w:\w\w)', output).group(0)
         print(mac_address)
         rpta = ""

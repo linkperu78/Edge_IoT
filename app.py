@@ -80,6 +80,32 @@ def create_app():
             return (new_json)
         except Exception as e:
             return f"Error type = {e}"
+
+
+    @app.route('/hoy/salud/<int:part>')
+    def specific_data_hoy(part):
+        # Si un dispositivo se conecta, otorgamos acceso a la base de datos y adicionalmente
+        # seteamos la columna status como enviada, si se vuelve a solicitar, no se envia nada
+        try:
+            package_size = packages_size
+            offset = (part - 1) * package_size
+            limit = package_size
+
+            data = M_actual_salud.query.offset(offset).limit(limit).all()
+            #msg_package = []
+            msg_package = [d.to_dict() for d in data]
+            #print(msg_package)
+            
+            new_json = {
+                "idEmpresa" : id_empresa,
+                "idDispositivo" : mac,
+                "Cargadora" : id_maquina,
+                "registro" : msg_package
+            }
+            return (new_json)
+        except Exception as e:
+            return f"Error type = {e}"
+
         
     return app
 
@@ -87,5 +113,5 @@ def create_app():
 app = create_app()
 
 if __name__ == '__main__':
-    #app.run(host = ip_default, port = 5000)
-    app.run()
+    app.run(host = ip_default, port = 5000)
+    #app.run()

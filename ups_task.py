@@ -33,7 +33,7 @@ if __name__ == '__main__':
         if(enable_off):
             print(" Apagando el equipo en {:1.0f}".format(count_down))
             if(count_down < 1):
-                print(f"Equipo apagandose a las { int( time.time() ) }")
+                print("Equipo apagandose a las" + str( int( time.time() ) ))
                 ups.shut_down()
             count_down -= 1
         time.sleep(2)
