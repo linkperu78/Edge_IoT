@@ -81,14 +81,22 @@ def create_app():
             return (new_json)
         except Exception as e:
             return f"Error type = {e}"
+<<<<<<< HEAD
     
 
     @app.route('/general/salud/datos/<int:part>')
     def general_salud_data(part):
+=======
+
+
+    @app.route('/hoy/salud/<int:part>')
+    def specific_data_hoy(part):
+>>>>>>> ebafb49988fbf75e58f985c307eedf0ab2ab3abf
         # Si un dispositivo se conecta, otorgamos acceso a la base de datos y adicionalmente
         # seteamos la columna status como enviada, si se vuelve a solicitar, no se envia nada
         try:
             package_size = packages_size
+<<<<<<< HEAD
             package_size = 10
             offset = (part - 1) * package_size
             limit = package_size
@@ -97,6 +105,16 @@ def create_app():
             msg_package = [row.to_dict() for row in data]
             
             #print(msg_package)
+=======
+            offset = (part - 1) * package_size
+            limit = package_size
+
+            data = M_actual_salud.query.offset(offset).limit(limit).all()
+            #msg_package = []
+            msg_package = [d.to_dict() for d in data]
+            #print(msg_package)
+            
+>>>>>>> ebafb49988fbf75e58f985c307eedf0ab2ab3abf
             new_json = {
                 "idEmpresa" : id_empresa,
                 "idDispositivo" : mac,
@@ -106,6 +124,10 @@ def create_app():
             return (new_json)
         except Exception as e:
             return f"Error type = {e}"
+<<<<<<< HEAD
+=======
+
+>>>>>>> ebafb49988fbf75e58f985c307eedf0ab2ab3abf
         
     return app
 
@@ -116,5 +138,5 @@ def create_app():
 app = create_app()
 
 if __name__ == '__main__':
-    #app.run(host = ip_default, port = 5000)
-    app.run()
+    app.run(host = ip_default, port = 5000)
+    #app.run()

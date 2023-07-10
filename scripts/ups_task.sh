@@ -1,11 +1,14 @@
 #!/bin/bash
+cd ~
+cd Desktop/Edge_IoT
+
 echo Iniciando Tarea de UPS - watcher
 
 # Activate Python Enviroment
-source /home/jetson-03/Desktop/Edge_IoT/focux_env/bin/activate
+source focux_env/bin/activate
 
 # Run python script
-python /home/jetson-03/Desktop/Edge_IoT/ups_task.py
+python ups_task.py
 
-echo Terminamos la tarea
+echo Terminamos la tarea de UPS 
 

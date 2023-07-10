@@ -9,14 +9,14 @@ print(" ----------- Comenzando la declaracion de variables -----------")
 
 database_name_default = "dato.db"
 
-actual_model = M.create_model("salud_table")
-new_model = M.create_model_tpi(const.name_salud_no_enviados)
+#actual_model = M.create_model("salud_table")
+new_model = M.Salud_NE()
 
 print(" ----------- Comenzando la solucion ----------- ")
 #my_test_model = M.Salud
 
 # Create database
-#print(my_sql.create_db("tpi"))
+#print(my_sql.create_db("dato.db"))
 
 # Insert data
 #my_sql.insert_data(my_test_model, data_test)
@@ -31,7 +31,7 @@ print(" ----------- Comenzando la solucion ----------- ")
 #my_sql.get_all_values(database_name_default, my_test_model)
 
 # Check some values
-my_sql.get_values(database_name_default, new_model, 900, 300)
+#my_sql.get_values(database_name_default, new_model, 900, 300)
 
 # Check Database
 my_sql.check_db(database_name_default)

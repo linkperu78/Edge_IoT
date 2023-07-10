@@ -11,6 +11,7 @@ import funciones as can_lib
 import models as M
 import my_sql as SQL
 import header_values as const
+#from extensions import db
 
 
 my_database_name = const.name_database
@@ -57,6 +58,8 @@ def leer_canbus(queue_can, queue_time):
                     "F"     : str(timestamp),
                     "Fecha" : timestamp
                 }
+                #print(f"En cola = {resultado.keys()}")
+                #print(f"En cola = {resultado.values()}")
                 queue_can.put(resultado)
                     
         except Exception as e:
@@ -66,27 +69,31 @@ def leer_canbus(queue_can, queue_time):
 def save_in_table(queue):
     led_state   = 1
     time_prev   = int(time.time())
-    Model       = M.create_model_tpi(my_table_name)
     engine      = SQL.create_engine(my_database_name)
     session     = SQL.create_session(engine)
+    #my_model    = M.Salud_NE()
 
     while True:
         try:
             resultado = queue.get( timeout = 5 )
-            #print(f"Guardando: {resultado}")
+            print(f"Guardando: {resultado}")
             time_now = int( time.time() )
             if( time_now - time_prev ) > 1:
                 time_prev = time_now
                 led_state = 1 - led_state
                 gp.blink(green_led,led_state)
-            
+            print(" ----- ")
+            my_model = M.Salud_NE()
+            my_model.P = resultado['P']
+            my_model.I = resultado['I']
+            my_model.F = resultado['F']
             #print(f"SQL = {resultado}")
-            new_data = Model(P = resultado['P'], 
-                             I = resultado['I'], 
-                             F = resultado['F'],
-                             Fecha = resultado['Fecha'])
-            session.add(new_data)
+            #new_data = my_model(P = resultado['P'], 
+                                #I = resultado['I'], 
+                                #F = resultado['F'])
+            session.add( my_model )
             session.commit()
+            print("done")
 
         except q.Empty:
             gp.on_pin(green_led)
