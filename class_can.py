@@ -21,7 +21,7 @@ class id_canbus:
 
         a = max(desire_value, 0)
         real_value = min(self.max_value, a)
-        
+
         if (desire_value != real_value):
             print(f" WARNING! : {self.id} recieved an off limits value")
         return self.init, self.len, mat.num_to_byte(real_value, self.len)
@@ -150,6 +150,7 @@ class valores_canbus:
                                          ]}, 
             "0x0cfedf00"    : {
                             'freq' : 120,
+                            #'freq' : 2,
                             'members' : [# Velocidad Deseada del motor
                                          canbus_cuadratica("RPMDeseado", 2, 2, 0.125, 0, 
                                                            600, 2300, 60, 100, 5),
