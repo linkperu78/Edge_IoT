@@ -11,12 +11,9 @@ import funciones as can_lib
 import models as M
 import my_sql as SQL
 import header_values as const
-#from extensions import db
-
 
 my_database_name = const.name_database
 my_table_name = const.name_salud_no_enviados
-
 green_led = 10
 
 # Abrimos el puerto can0, el programa no avanzara si no se abre
@@ -38,10 +35,8 @@ def leer_canbus(queue_can, queue_time):
     while True:
         try:
             elapse_time = int( time.time() ) + 1 - init_time
-        
             if queue_time.empty():
                 continue
-            
             timestamp, id_tag, data_str = queue_time.get()
             array_class = my_dict[id_tag]
 
@@ -51,63 +46,49 @@ def leer_canbus(queue_can, queue_time):
                 if array_result == None :
                     continue
                 value, tag = array_result
-                #payload = [ timestamp - value - tag_id]  
                 resultado = {
                     'P'     : value,
                     "I"     : tag,
                     "F"     : str(timestamp),
                     "Fecha" : timestamp
                 }
-                #print(f"En cola = {resultado.keys()}")
-                print(f"En cola = {resultado.values()}")
                 queue_can.put(resultado)
-                    
+
         except Exception as e:
             print(f"Error en el proceso leer_canbus : {e}")
             traceback.print_exc()
+
 
 def save_in_table(queue):
     led_state   = 1
     time_prev   = int(time.time())
     engine      = SQL.create_engine(my_database_name)
     session     = SQL.create_session(engine)
-    #my_model    = M.Salud_NE()
-
     while True:
         try:
             resultado = queue.get( timeout = 5 )
             print(f"Guardando: {resultado}")
             time_now = int( time.time() )
-            
             if( time_now - time_prev ) > 1:
                 time_prev = time_now
                 led_state = 1 - led_state
                 gp.blink(green_led,led_state)
-            #print(" ----- ")
             my_model = M.Salud_NE()
             my_model.P = resultado['P']
             my_model.I = resultado['I']
             my_model.F = resultado['F']
-            #print(f"SQL = {resultado}")
-            #new_data = my_model(P = resultado['P'], 
-                                #I = resultado['I'], 
-                                #F = resultado['F'])
             session.add( my_model )
             session.commit()
-            #print("done")
 
         except q.Empty:
             gp.on_pin(green_led)
-
         except Exception as e:
             print(f"Error ocurrido en save_in_table: {e}")
             pass
 
 
 my_list_id = can_lib.get_array_tag()
-
 if __name__ == "__main__":
-    print("INICIO")
     gp.set_code_utf()
     gp.gpio_output(green_led)
     gp.on_pin(green_led)
@@ -115,7 +96,7 @@ if __name__ == "__main__":
     queue_can = Queue()
     queue_time = Queue()
 
-    print(" -------------------- START -------------------- ")
+    print(" -------------------- START CAN BUS RECORDER -------------------- ")
     process_1 = Process(target = leer_canbus, args = (queue_can, queue_time,) )
     process_2 = Process(target = save_in_table, args = (queue_can, ) )
     

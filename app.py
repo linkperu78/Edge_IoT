@@ -23,22 +23,25 @@ M_salud_general = M.Salud_general()
 
 def create_app():
     app = Flask(__name__)
-    logging.getLogger('werkzeug').setLevel(logging.ERROR)
+    #logging.getLogger('werkzeug').setLevel(logging.ERROR)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + database_name
 
     db.init_app(app)
+    testing_const = 1
 
     @app.route("/localtime")
     def localtime():
         time_local = time.time()
+        time.sleep(1)
         return f"{time_local}"
 
     @app.route("/salud/size")
     def hello_world():
         size = len(M_salud_ne.query.all())
         number_packages = math.ceil(size / packages_size)
-        return f"{number_packages}"
-        #return "585"
+        time.sleep(2)
+        #return f"{number_packages}"
+        return "5"
 
     @app.route("/salud/total")
     def total():
@@ -51,29 +54,33 @@ def create_app():
         data = M_salud_ne.query.all()
         return jsonify([d.to_dict() for d in data])
 
-    #@app.route('/salud/datos/<int:part>')
+
+    #@app.route('/salud/datos')
+    @app.route("/saludos/datos")
+    def testing():
+        nonlocal testing_const
+        testing_const += 1
+        return f"{testing_const}"
+
+
     @app.route('/salud/datos')
+    #@app.route('/saludos/datos')
     def specific_data():
         # Si un dispositivo se conecta, otorgamos acceso a la base de datos y adicionalmente
         # seteamos la columna status como enviada, si se vuelve a solicitar, no se envia nada
         try:
             package_size = packages_size
-            #offset = (part - 1) * package_size
             limit = package_size
-
             data = M_salud_ne.query.limit(limit).all()
             msg_package = []
-
             for row in data:
                 msg_package.append(row.to_dict())
                 new_row = M_actual_salud()
                 new_row.F, new_row.P, new_row.I  = row.F, row.P, row.I
                 new_row.Fecha = int(row.F)
                 db.session.add(new_row)
-                db.session.delete(row)
+                #db.session.delete(row)
             db.session.commit()
-            
-            #print(msg_package)
             new_json = {
                 "idEmpresa" : id_empresa,
                 "idDispositivo" : mac,
@@ -92,9 +99,7 @@ def create_app():
             offset = (part - 1) * package_size
             limit = package_size
             data = M_actual_salud.query.offset(offset).limit(limit).all()
-            #msg_package = []
             msg_package = [d.to_dict() for d in data]
-            #print(msg_package)
             new_json = {
                 "idEmpresa" : id_empresa,
                 "idDispositivo" : mac,
@@ -104,15 +109,20 @@ def create_app():
             return (new_json)
         except Exception as e:
             return f"Error type = {e}"
-        
+
+    @app.route("/hoy/salud/size")
+    def hello_hoy():
+        size = len(M_actual_salud.query.all())
+        number_packages = math.ceil(size / packages_size)
+        return "3"
+        #return f"{number_packages}"
+
+
+
     return app
 
-
-
-
-
 app = create_app()
-
 if __name__ == '__main__':
+    time.sleep(3)
     app.run(host = ip_default, port = 5000)
-    #app.run()
+
