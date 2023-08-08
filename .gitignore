@@ -30,6 +30,6 @@ directory/
 *.csv
 
 # Ignore next python scripts
-#my_sql.py
-#sql_script.py
+plotter.py
+test_server.py
 #save_data_json.py

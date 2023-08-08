@@ -11,6 +11,7 @@ import funciones as can_lib
 import models as M
 import my_sql as SQL
 import header_values as const
+import mySD
 #from extensions import db
 
 
@@ -31,17 +32,15 @@ while can0 is None:
         time.sleep(30)
 
 
-def leer_canbus(queue_can, queue_time):
+def leer_canbus(queue_can, queue_time, queue_horometro):
     my_dict = can_lib.create_dictionary()
     init_time = int( time.time() )
 
     while True:
         try:
             elapse_time = int( time.time() ) + 1 - init_time
-        
             if queue_time.empty():
                 continue
-            
             timestamp, id_tag, data_str = queue_time.get()
             array_class = my_dict[id_tag]
 
@@ -51,20 +50,21 @@ def leer_canbus(queue_can, queue_time):
                 if array_result == None :
                     continue
                 value, tag = array_result
-                #payload = [ timestamp - value - tag_id]  
+                if tag == "RPM" or tag == "RPMDeseado":
+                    my_horometro = [tag, value]
+                    queue_horometro.put(my_horometro)
                 resultado = {
                     'P'     : value,
                     "I"     : tag,
                     "F"     : str(timestamp),
                     "Fecha" : timestamp
                 }
-                #print(f"En cola = {resultado.keys()}")
-                print(f"En cola = {resultado.values()}")
                 queue_can.put(resultado)
                     
         except Exception as e:
             print(f"Error en el proceso leer_canbus : {e}")
             traceback.print_exc()
+
 
 def save_in_table(queue):
     led_state   = 1
@@ -104,23 +104,64 @@ def save_in_table(queue):
             pass
 
 
+def horometro(queue_horometro, queue_can):
+    # Obtenemos el valor almacenado en un archivo .file
+    my_initial_horometro = mySD.leer_horometro_sd()
+   
+    # Tenemos que  esperar a que el equipo arranque:
+    my_flag = 0
+    while my_flag == 0:
+        flag = queue_horometro.get( timeout = 10 )
+        if (flag == None):
+            #time.sleep(10)
+            continue
+        tag, value = flag
+        if tag == "RPMDeseado":
+            if value > 600:
+                my_flag = 1
+        
+    # El valor en que comenzamos a leer el canbus
+    my_initial_time = time.time()
+    
+    # Comenzamos la supervision del horometro
+    while True:
+        try:
+            new_elapse_time = time.time() - my_initial_time
+            flag = queue_horometro.get( timeout = 10 )
+            if ( flag == None ):
+                continue
+            tag, value = flag
+            if not tag == "RPM":
+                continue
+            if value > 800:
+                queue_can.put()
+                
+            
+        except Exception as e:
+            print(f"Error en Horometro {e}")
+            time.sleep(10000)
+
+
+
 my_list_id = can_lib.get_array_tag()
 
 if __name__ == "__main__":
-    print("INICIO")
     gp.set_code_utf()
     gp.gpio_output(green_led)
     gp.on_pin(green_led)
     
     queue_can = Queue()
     queue_time = Queue()
+    queue_horometro = Queue()
 
     print(" -------------------- START -------------------- ")
-    process_1 = Process(target = leer_canbus, args = (queue_can, queue_time,) )
+    process_1 = Process(target = leer_canbus, args = (queue_can, queue_time, queue_horometro,) )
     process_2 = Process(target = save_in_table, args = (queue_can, ) )
-    
+    process_3 = Process(target = horometro, args = (queue_horometro, queue_can, ) )
+
     process_1.start()
     process_2.start()
+    process_3.start()
 
     initial_time = int(time.time())
     try:
@@ -140,6 +181,8 @@ if __name__ == "__main__":
         # Stop the tasks when Ctrl+C is pressed
         process_1.terminate()
         process_2.terminate()
+        process_3.terminate()
         process_1.join()
         process_2.join()
+        process_3.join()
         print("Tasks terminated.")
