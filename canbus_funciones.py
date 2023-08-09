@@ -1,6 +1,5 @@
 import estructura_can
 
-
 # Clase para datos que son formados por bytes
 class base_config:
     def __init__(self, tag_name, init_byte, len_byte, scale, offset, freq):
@@ -35,13 +34,14 @@ class tag_config(base_config):
 
     # Obtenemos el array: [ Tag_Value, "Tag_name" ]
     def values_to_pub(self, array_hexadecimal, time_pass):
-        value = self.get_value_from_can(array_hexadecimal)
+        enable = 0
+        self.value = self.get_value_from_can(array_hexadecimal)
         flag = time_pass % self.freq
-        #print(f"Time: {self.time_prev} /  {time_pass} - freq = {self.freq} - flag = {flag}")
         if flag == 0 and self.time_prev < time_pass :
             self.time_prev = time_pass
-            return [value, self.tag_name ]
-        return None
+            enable = 1
+        values = [self.value, self.tag_name]
+        return [enable, values]
 
 
 class special_tag_config(base_config):
@@ -53,19 +53,16 @@ class special_tag_config(base_config):
     def values_to_pub(self, array_hexadecimal, time_pass):
         # Si el valor es mayor al almanecado por la cantidad suficiente
         # Guardamos el nuevo valor y habilitamos el flag para su envio
-        if (self.tag_name == "pesaje"):
-            status = array_hexadecimal[0] + array_hexadecimal[1]
-            if array_hexadecimal[0] != "0101":
-                return None
-
+        enable = 0
         value = self.get_value_from_can(array_hexadecimal)
         if( abs(self.value - value) > self.change ):
             self.value = value
-            return [value , self.tag_name ]
+            enable = 1
         if time_pass % self.freq == 0 and self.time_prev < time_pass :
             self.time_prev = time_pass
-            return [self.value, self.tag_name ]
-        return None
+            enable = 1
+        values = [self.value, self.tag_name]
+        return enable, values
 
 
 # Creamos un constructor de diccionarios
@@ -113,18 +110,10 @@ def get_matrix_freq():
     return matrix_freq
 
 
-def get_matrix_tag():
-    return estructura_can.my_tag
-
-
-def get_array_tag():
-    return estructura_can.array_id
-
-
 # parameters: "Mensaje completo de can_bus "
 # return: timestamp , tag, data_byte
 def get_data_canbus(msg_canbus):
-    data_canbus_str = []
+    data_canbus_str = []    
     i, time, id, pos_data = 0,"","",0
     temp = msg_canbus.split()
     len_temp = len(temp)

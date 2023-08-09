@@ -1,6 +1,6 @@
 # Ignore files with .pyc extension
 *.pyc
-
+.venv
 
 # Ignore the entire "build" directory
 /focux_env/
@@ -32,4 +32,5 @@ directory/
 # Ignore next python scripts
 plotter.py
 test_server.py
+test.py
 #save_data_json.py

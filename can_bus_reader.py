@@ -7,18 +7,19 @@ import traceback
 
 # Librerias para desencriptar mensajes can
 import can
-import funciones as can_lib
+import canbus_funciones as can_lib
 import models as M
-import my_sql as SQL
-import header_values as const
-import mySD
-#from extensions import db
+import sql_library as SQL
+import json_reader
 
+# Importamos los datos del json
+green_led = json_reader.get_json_from_file("machine_values.json")["Led"]
 
-my_database_name = const.name_database
-my_table_name = const.name_salud_no_enviados
-
-green_led = 10
+# SQL data
+sql_data = json_reader.get_json_from_file("sql_names.json")
+database_name   = sql_data["name"]
+salud_sql       = sql_data["table_salud"]
+acelerador      = 10
 
 # Abrimos el puerto can0, el programa no avanzara si no se abre
 time.sleep(0.5)
@@ -32,27 +33,41 @@ while can0 is None:
         time.sleep(30)
 
 
+#
+# Process to decode canbus data 
+#
 def leer_canbus(queue_can, queue_time, queue_horometro):
     my_dict = can_lib.create_dictionary()
     init_time = int( time.time() )
 
     while True:
         try:
+            # Obtenemos el tiempo que ha pasado para filtrar por frecuencias
+            # + 1 para evitar que todos se actualicen
             elapse_time = int( time.time() ) + 1 - init_time
+            elapse_time = elapse_time * acelerador
+
             if queue_time.empty():
                 continue
+
             timestamp, id_tag, data_str = queue_time.get()
             array_class = my_dict[id_tag]
 
             # Array de classes segun TAG
             for _class in array_class:
-                array_result = _class.values_to_pub(data_str, elapse_time * 10)
-                if array_result == None :
+                _enable, array_result = _class.values_to_pub(data_str, elapse_time)
+                # _enable = 1 : Se habilito la publicacion por filtro
+                if _enable == 0 :
                     continue
+
                 value, tag = array_result
-                if tag == "RPM" or tag == "RPMDeseado":
-                    my_horometro = [tag, value]
-                    queue_horometro.put(my_horometro)
+                # Debemos evaluar si el tag RPM  es mayor a 800
+                if ( tag == "RPMDeseado" ):
+                    if (value > 800):
+                        queue_horometro.put(1)
+                    else:
+                        queue_horometro.put(0)
+                
                 resultado = {
                     'P'     : value,
                     "I"     : tag,
@@ -66,35 +81,27 @@ def leer_canbus(queue_can, queue_time, queue_horometro):
             traceback.print_exc()
 
 
+#
+# Process to save data in SQL Database#
+#
 def save_in_table(queue):
     led_state   = 1
     time_prev   = int(time.time())
-    engine      = SQL.create_engine(my_database_name)
-    session     = SQL.create_session(engine)
-    #my_model    = M.Salud_NE()
-
+    sql_host = SQL.sql_host()
+    sql_host.set_name_db(database_name)
+    Salud_Model = M.create_model_salud_tpi(salud_sql)
     while True:
         try:
             resultado = queue.get( timeout = 5 )
             print(f"Guardando: {resultado}")
             time_now = int( time.time() )
-            
+
             if( time_now - time_prev ) > 1:
                 time_prev = time_now
                 led_state = 1 - led_state
                 gp.blink(green_led,led_state)
-            #print(" ----- ")
-            my_model = M.Salud_NE()
-            my_model.P = resultado['P']
-            my_model.I = resultado['I']
-            my_model.F = resultado['F']
-            #print(f"SQL = {resultado}")
-            #new_data = my_model(P = resultado['P'], 
-                                #I = resultado['I'], 
-                                #F = resultado['F'])
-            session.add( my_model )
-            session.commit()
-            #print("done")
+
+            sql_host.insert_data(Salud_Model, resultado)
 
         except q.Empty:
             gp.on_pin(green_led)
@@ -104,39 +111,45 @@ def save_in_table(queue):
             pass
 
 
+#
+# Process to run or stop the horometer parameter
+#
 def horometro(queue_horometro, queue_can):
     # Obtenemos el valor almacenado en un archivo .file
-    my_initial_horometro = mySD.leer_horometro_sd()
-   
-    # Tenemos que  esperar a que el equipo arranque:
-    my_flag = 0
-    while my_flag == 0:
-        flag = queue_horometro.get( timeout = 10 )
-        if (flag == None):
-            #time.sleep(10)
-            continue
-        tag, value = flag
-        if tag == "RPMDeseado":
-            if value > 600:
-                my_flag = 1
-        
-    # El valor en que comenzamos a leer el canbus
-    my_initial_time = time.time()
-    
+    horometro_value = json_reader.get_json_from_file("horometer.json")
+    status = 0
+    horometer_initial_time = int(time.time())
     # Comenzamos la supervision del horometro
     while True:
         try:
-            new_elapse_time = time.time() - my_initial_time
-            flag = queue_horometro.get( timeout = 10 )
-            if ( flag == None ):
-                continue
-            tag, value = flag
-            if not tag == "RPM":
-                continue
-            if value > 800:
-                queue_can.put()
-                
+            new_time = int(time.time())
+            elapse_time = new_time - horometer_initial_time + 1
+            elapse_time = elapse_time * acelerador
+            if elapse_time % 60 == 0:
+                json_reader.save_in_json_file("horometer.json",horometro_value)
+                resultado = {
+                    'P'     : horometro_value["ralenti"],
+                    "I"     : "Ralenti",
+                    "F"     : str(timestamp),
+                    "Fecha" : timestamp
+                }
+                queue_can.put(resultado) 
+                resultado = {
+                    'P'     : horometro_value["horometro"],
+                    "I"     : "Horometro",
+                    "F"     : str(timestamp),
+                    "Fecha" : timestamp
+                }
+                queue_can.put(resultado) 
             
+            if queue_horometro.empty():
+                horometro_value["horometro"] += 1
+                horometro_value["ralenti"] += status
+                continue
+
+            status = queue_horometro.get()
+            time.sleep(1)
+
         except Exception as e:
             print(f"Error en Horometro {e}")
             time.sleep(10000)
@@ -144,7 +157,7 @@ def horometro(queue_horometro, queue_can):
 
 
 my_list_id = can_lib.get_array_tag()
-
+# Main Program
 if __name__ == "__main__":
     gp.set_code_utf()
     gp.gpio_output(green_led)
@@ -164,10 +177,10 @@ if __name__ == "__main__":
     process_3.start()
 
     initial_time = int(time.time())
+    canbus_list_filter = can_lib.estructura_can.canbus_tags_list
     try:
         while True:
             msg = can0.recv( 2 )
-            #print(f"Message = {msg}")
             if msg is None:
                 time.sleep(2)
                 continue

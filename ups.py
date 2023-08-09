@@ -1,4 +1,3 @@
-import datetime
 import subprocess
 from smbus2 import SMBus
 
@@ -84,10 +83,6 @@ class INA219:
         self.bus.write_i2c_block_data(self.addr,address,temp)
 
     def set_calibration_32V_2A(self):
-        """Configures to INA219 to be able to measure up to 32V and 2A of current. Counter
-           overflow occurs at 3.2A.
-           ..note :: These calculations assume a 0.1 shunt ohm resistor is present
-        """
         self._current_lsb = .1  # Current LSB = 100uA per bit
         self._cal_value = 4096
         self._power_lsb = .002  # Power LSB = 2mW per bit
@@ -118,21 +113,6 @@ class INA219:
         if value > 32767:
             value -= 65535
         return value * self._current_lsb
-
-
-def save_data():
-    # Get the device's time alive
-    uptime_process = subprocess.Popen(['cat', '/proc/uptime'], stdout=subprocess.PIPE)
-    uptime_seconds = float(uptime_process.stdout.read().split()[0])
-    uptime = str(datetime.timedelta(seconds=uptime_seconds))
-
-    # Get the current date
-    current_date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
-    # Save the data to a file
-    #with open('/home/focux/Desktop/Focux_IoT/datalog.txt', 'a') as f:
-    #    f.write(f'- Time Alive: {uptime}\n')
-    #    f.write(f'    Current Date: {current_date}\n')
 
 
 def shut_down():

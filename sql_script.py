@@ -1,37 +1,23 @@
-import my_sql
-import models as M
-import header_values as const
-# By default:
-# Database      = dato.db
-# Table_name    = salud_table
+import sql_library as sql
+import models as Model
+import datetime
 
-print(" ----------- Comenzando la declaracion de variables -----------")
+#init
+my_host_sql = sql.sql_host()
 
-database_name_default = "dato.db"
+my_new_model = Model.create_model_tpi("Test_salud")
+new_data = {
+    "P" : 0.0,
+    "F" : "1687564928",
+    "I" : "RPMDeseado",
+}
+epoch_time = 1687564928
+timestamp_datetime = datetime.datetime.fromtimestamp(epoch_time)
+new_data["Fecha"] =  timestamp_datetime.strftime('%Y-%m-%d %H:%M:%S')
+print(new_data)
 
-#actual_model = M.create_model("salud_table")
-new_model = M.Salud_NE()
+# instance/dato.db
+my_host_sql.set_name_db("dato")
+my_host_sql.insert_data(my_new_model, new_data)
 
-print(" ----------- Comenzando la solucion ----------- ")
-#my_test_model = M.Salud
-
-# Create database
-#print(my_sql.create_db("dato.db"))
-
-# Insert data
-#my_sql.insert_data(my_test_model, data_test)
-
-# Create a new table
-#my_sql.create_table(database_name_default, new_model)
-
-# Export Data
-#my_sql.export_data(database_name_default, actual_model, new_model)
-
-# View example of data in table
-#my_sql.get_all_values(database_name_default, my_test_model)
-
-# Check some values
-#my_sql.get_values(database_name_default, new_model, 900, 300)
-
-# Check Database
-my_sql.check_db(database_name_default)
+my_host_sql.check_db()

@@ -1,14 +1,5 @@
 import ups
 import time
-#import gpio_functions as g
-
-led_pin = 10
-
-can_task = "can"
-server_task = "server"
-
-can_status = 1
-server_status = 1
 
 _DEFAULT_COUNT_MAX = 4
 
