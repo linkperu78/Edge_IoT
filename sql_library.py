@@ -96,7 +96,7 @@ class sql_host():
                 break
 
         # Encontramos una base de datos de hoy, seguimos usandolo
-        new_model = M.create_model_salud_tpi(my_table_actual_name)
+        new_model = M.create_model_salud(my_table_actual_name)
         if found == 0:
             # Como no encontramos una base de datos de hoy, creamos una nueva base
             # y transferimos todos los datos en la tabla de no enviados a esta tabla
