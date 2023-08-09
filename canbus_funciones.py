@@ -67,24 +67,25 @@ class special_tag_config(base_config):
 
 # Creamos un constructor de diccionarios
 def create_dictionary():
-    my_tag = estructura_can.my_tag
+    my_tag = estructura_can.canbus_order_ids
     list_tag = estructura_can.list_tag
-    array_id = estructura_can.array_id
+    array_id = estructura_can.canbus_tags_list
     
     base_dictionary = {
     }
     pos_tag = 0
     for tag in array_id:
-        #print(f"Tag = {tag}")
+        #print(f"\nTag = {tag}")
         class_array = []
         array_id = my_tag[pos_tag]
         #print(f"Array_id = {array_id}")
         for id in array_id:
             #print(f"ID = {id}")
             _init, _len, _scale, _offset, _freq = list_tag[id]
-            #_freq = int( _freq / 10 )
-            if id in estructura_can.especial_id:
-                change_value = estructura_can.dic_value[id]
+            especial_id_dictionary = estructura_can.especial_id
+            if id in especial_id_dictionary:
+                #print(f"Especial ID = {id}")
+                change_value = int(especial_id_dictionary[id])
                 new_class = special_tag_config(id, _init, _len, _scale, _offset, _freq, change_value)
             else:
                 new_class = tag_config(id, _init, _len, _scale, _offset, _freq)

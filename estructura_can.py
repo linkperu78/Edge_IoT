@@ -25,7 +25,8 @@ list_tag = {
     "QCombustible"  :   [1, 2,      0.05, 0,        50], # 120] ,
 }
 
-canbus_tags_list = ["f004", "fedf", "f003", "fef6", "fee9", "feef", "fef5", "fef7", "feee", "fee4", "fef2", "fee5",  "ff84"]
+#canbus_tags_list = ["f004", "fedf", "f003", "fef6", "fee9", "feef", "fef5", "fef7", "feee", "fee4", "fef2", "fee5",  "ff84"]
+canbus_tags_list = ["f004", "fedf", "f003", "fef6", "fee9", "feef", "fef5", "fef7", "feee", "fee4", "fef2"]
 
 canbus_order_ids = [
          ["RPM", "TorqueActual"], 

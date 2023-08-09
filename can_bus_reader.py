@@ -19,6 +19,7 @@ green_led = json_reader.get_json_from_file("machine_values.json")["Led"]
 sql_data = json_reader.get_json_from_file("sql_names.json")
 database_name   = sql_data["name"]
 salud_sql       = sql_data["table_salud"]
+
 acelerador      = 10
 
 # Abrimos el puerto can0, el programa no avanzara si no se abre
@@ -117,6 +118,7 @@ def horometro(queue_horometro, queue_can):
     horometro_value = json_reader.get_json_from_file("horometer.json")
     status = 0
     horometer_initial_time = int(time.time())
+    timestamp = horometer_initial_time
     # Comenzamos la supervision del horometro
     while True:
         try:
@@ -154,7 +156,8 @@ def horometro(queue_horometro, queue_can):
 
 
 
-my_list_id = can_lib.get_array_tag()
+my_list_id = can_lib.estructura_can.canbus_tags_list
+
 # Main Program
 if __name__ == "__main__":
     gp.set_code_utf()
