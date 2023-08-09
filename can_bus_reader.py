@@ -119,13 +119,15 @@ def horometro(queue_horometro, queue_can):
     status = 0
     horometer_initial_time = int(time.time())
     timestamp = horometer_initial_time
+    prev_elapse_time = 0
     # Comenzamos la supervision del horometro
     while True:
         try:
             new_time = int(time.time())
             elapse_time = new_time - horometer_initial_time + 1
             elapse_time = elapse_time * acelerador
-            if elapse_time % 60 == 0:
+
+            if elapse_time % 60 == 0 and (elapse_time > prev_elapse_time):
                 json_reader.save_in_json_file("horometer.json",horometro_value)
                 resultado = {
                     'P'     : horometro_value["ralenti"],
@@ -140,7 +142,8 @@ def horometro(queue_horometro, queue_can):
                     "F"     : str(timestamp),
                     "Fecha" : timestamp
                 }
-                queue_can.put(resultado) 
+                queue_can.put(resultado)
+                prev_elapse_time = elapse_time 
             
             if queue_horometro.empty():
                 horometro_value["horometro"] += 1
