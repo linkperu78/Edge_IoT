@@ -36,23 +36,32 @@ id_empresa              = initial_values["IdEmpresa"]
 
 def create_app():
     app = Flask(__name__)
-    logging.getLogger('werkzeug').setLevel(logging.ERROR)
+    #logging.getLogger('werkzeug').setLevel(logging.ERROR)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + database_name
     db.init_app(app)
+    testing_const = 1
 
 
     @app.route("/localtime")
     def localtime():
         time_local = time.time()
+        time.sleep(1)
         return f"{time_local}"
 
 
     @app.route("/salud/size")
     def hello_world():
         size = len(M_salud_ne.query.all())
+<<<<<<< HEAD
         number_packages = math.ceil(size / salud_package_size)
         return f"{number_packages}"
 
+=======
+        number_packages = math.ceil(size / packages_size)
+        time.sleep(2)
+        #return f"{number_packages}"
+        return "5"
+>>>>>>> refs/remotes/origin/main
 
     @app.route("/salud/total")
     def total():
@@ -60,12 +69,34 @@ def create_app():
         return f"Tamaño de Salud = {size}"
 
 
+<<<<<<< HEAD
+=======
+    @app.route('/salud')
+    def all_data():
+        data = M_salud_ne.query.all()
+        return jsonify([d.to_dict() for d in data])
+
+
+    #@app.route('/salud/datos')
+    @app.route("/saludos/datos")
+    def testing():
+        nonlocal testing_const
+        testing_const += 1
+        return f"{testing_const}"
+
+
+>>>>>>> refs/remotes/origin/main
     @app.route('/salud/datos')
+    #@app.route('/saludos/datos')
     def specific_data():
         # Si un dispositivo se conecta, otorgamos acceso a la base de datos y adicionalmente
         # seteamos la columna status como enviada, si se vuelve a solicitar, no se envia nada
         try:
+<<<<<<< HEAD
             package_size = salud_package_size
+=======
+            package_size = packages_size
+>>>>>>> refs/remotes/origin/main
             limit = package_size
             data = M_salud_ne.query.limit(limit).all()
             msg_package = []
@@ -77,6 +108,8 @@ def create_app():
                 db.session.add(new_row)
                 #db.session.delete(row)
             db.session.commit()
+<<<<<<< HEAD
+=======
             new_json = {
                 "idEmpresa" : id_empresa,
                 "idDispositivo" : mac,
@@ -86,10 +119,47 @@ def create_app():
             return (new_json)
         except Exception as e:
             return f"Error type = {e}"
-        
+
+
+    @app.route('/hoy/salud/<int:part>')
+    def specific_data_hoy(part):
+        try:
+            package_size = packages_size
+            offset = (part - 1) * package_size
+            limit = package_size
+            data = M_actual_salud.query.offset(offset).limit(limit).all()
+            msg_package = [d.to_dict() for d in data]
+>>>>>>> refs/remotes/origin/main
+            new_json = {
+                "idEmpresa" : id_empresa,
+                "idDispositivo" : mac,
+                "Cargadora" : id_maquina,
+                "registro" : msg_package
+            }
+            return (new_json)
+        except Exception as e:
+            return f"Error type = {e}"
+
+    @app.route("/hoy/salud/size")
+    def hello_hoy():
+        size = len(M_actual_salud.query.all())
+        number_packages = math.ceil(size / packages_size)
+        return "3"
+        #return f"{number_packages}"
+
+
+
     return app
 
+<<<<<<< HEAD
 
 app = create_app()
 if __name__ == '__main__':
     app.run()
+=======
+app = create_app()
+if __name__ == '__main__':
+    time.sleep(3)
+    app.run(host = ip_default, port = 5000)
+
+>>>>>>> refs/remotes/origin/main

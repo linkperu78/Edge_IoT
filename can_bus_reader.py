@@ -75,7 +75,7 @@ def leer_canbus(queue_can, queue_time, queue_horometro):
                     "Fecha" : timestamp
                 }
                 queue_can.put(resultado)
-                    
+
         except Exception as e:
             print(f"Error en el proceso leer_canbus : {e}")
             traceback.print_exc()
@@ -95,7 +95,6 @@ def save_in_table(queue):
             resultado = queue.get( timeout = 5 )
             print(f"Guardando: {resultado}")
             time_now = int( time.time() )
-
             if( time_now - time_prev ) > 1:
                 time_prev = time_now
                 led_state = 1 - led_state
@@ -105,7 +104,6 @@ def save_in_table(queue):
 
         except q.Empty:
             gp.on_pin(green_led)
-
         except Exception as e:
             print(f"Error ocurrido en save_in_table: {e}")
             pass
