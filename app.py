@@ -93,9 +93,8 @@ def create_app():
     @app.route("/hoy/salud/size")
     def hello_hoy():
         size = len(M_actual_salud.query.all())
-        number_packages = math.ceil(size / packages_size)
-        return "3"
-        #return f"{number_packages}"
+        number_packages = math.ceil(size / salud_package_size)
+        return f"{number_packages}"
     return app
 
 
