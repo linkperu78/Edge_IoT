@@ -123,8 +123,9 @@ def horometro(queue_horometro, queue_can):
     # Comenzamos la supervision del horometro
     while True:
         try:
+            time.sleep(1)
             new_time = int(time.time())
-            elapse_time = new_time - horometer_initial_time + 1
+            elapse_time = new_time - horometer_initial_time
             elapse_time = elapse_time * acelerador
 
             if elapse_time % 60 == 0 and (elapse_time > prev_elapse_time):
@@ -151,7 +152,8 @@ def horometro(queue_horometro, queue_can):
                 continue
 
             status = queue_horometro.get()
-            time.sleep(1)
+            print(f"Status = {status}")
+            #time.sleep(1)
 
         except Exception as e:
             print(f"Error en Horometro {e}")
