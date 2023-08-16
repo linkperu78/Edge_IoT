@@ -54,22 +54,15 @@ class sql_host():
         return(f"Table '{Model.__tablename__}' created successfully.")
 
 
-    # Ingresamos un nuevo dato a la tabla usando el MODEL de la tabla
+    # Ingresamos un nuevo dato a la tabla usando el MODEL
     def insert_data(self, Model, data_dictionary):
         try:
-            p_value = data_dictionary['P']
-            i_value = data_dictionary['I']
-            f_value = data_dictionary['F']
-            fecha = data_dictionary["Fecha"]
-            new_data = Model(P = p_value, 
-                             I = i_value, 
-                             F = f_value,
-                             Fecha = fecha)
-            self.session.add(new_data)
+            #print(f"Data a ingresar = {data_dictionary}\n")
+            self.session.add(Model(**data_dictionary))
             self.session.commit()
-            print(f"{Model.__tablename__} : P = {p_value}, F = {f_value}, I = {i_value}")
+            #print(f"{Model.__tablename__} : {data_dictionary}")
         except Exception as e:
-            print(f"{e}")
+            print(f"Error en insertar datos =\n{e}\n")
 
 
     # Copy the table to another one
@@ -83,12 +76,18 @@ class sql_host():
 
     
     # Obtenemos MODEL de la tabla SQL del dia actual
-    def get_today_table(self):
+    def get_today_table(self, mode):
         current_date = datetime.datetime.now().strftime('%Y_%m_%d')
         #print("Buscando las bases de datos")
         tables_names = self.get_tables_names()
         found = 0
-        my_table_actual_name = "Salud_TPI_" + current_date
+        if mode == "Salud":
+            my_table_actual_name = "Salud_TPI_" + current_date
+        elif mode == "Pesaje":
+            my_table_actual_name = "Pesaje_TPI_" + current_date
+        else:
+            return None
+
         for name_table in tables_names:
             # Si encontro una base de datos de hoy, no crea una nueva base 
             if (name_table == my_table_actual_name) :
@@ -96,14 +95,27 @@ class sql_host():
                 break
 
         # Encontramos una base de datos de hoy, seguimos usandolo
-        new_model = M.create_model_salud(my_table_actual_name)
+        if mode == "Salud":
+            new_model = M.create_model_salud(my_table_actual_name)
+        elif mode == "Pesaje":
+            new_model = M.create_model_pesaje(my_table_actual_name)
+
         if found == 0:
             # Como no encontramos una base de datos de hoy, creamos una nueva base
             # y transferimos todos los datos en la tabla de no enviados a esta tabla
             self.create_table(new_model)
+
         return new_model
     
 
+    # Eliminamos la tabla de datos deseada
+    def delete_table(self, Model):
+        metadata = SQL.MetaData()
+        metadata.reflect(bind = self.engine)
+        Model.__table__.drop(self.engine)
+
+
     # Finalizamos el host
     def end_host(self):
+        self.engine.dispose()
         self.session.close()

@@ -5,19 +5,28 @@ import datetime
 #init
 my_host_sql = sql.sql_host()
 
-#my_new_model = Model.create_model_tpi("Test_salud")
+test_salud  = Model.create_model_salud_tpi("salud")
+test_pesaje = Model.create_model_pesaje_tpi("pesaje")
 new_data = {
     "P" : 0.0,
     "F" : "1687564928",
     "I" : "RPMDeseado",
 }
-epoch_time = 1687564928
-timestamp_datetime = datetime.datetime.fromtimestamp(epoch_time)
-new_data["Fecha"] =  timestamp_datetime.strftime('%Y-%m-%d %H:%M:%S')
-print(new_data)
+
+new_data_pesaje = {
+    "Producto"  : "Mineral",
+    "Funcion"   : "Agregar",
+    "Secuencia" : 1,
+    "Peso"      : 5.02,
+    "Fecha"     : "2023-08-16 17:15:14",
+}
 
 # instance/dato.db
 my_host_sql.set_name_db("dato")
-#my_host_sql.insert_data(my_new_model, new_data)
 
-my_host_sql.check_db()
+#my_host_sql.delete_table(test_pesaje)
+#my_host_sql.create_table(test_pesaje)
+my_host_sql.insert_data(test_pesaje, new_data_pesaje)
+
+#my_host_sql.check_db()
+

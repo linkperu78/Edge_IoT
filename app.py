@@ -19,13 +19,13 @@ pesaje_package_size     = int( initial_values["pesaje_size"] )
 
 # SQL Databases
 M_salud_ne      = M.create_model_salud_tpi(salud_table_name)
-#M_pesaje_ne     = M.create_model_pesaje_tpi(pesaje_table_name)
+M_pesaje_ne     = M.create_model_pesaje_tpi(pesaje_table_name)
 
 _sql_ = SQL.sql_host()
 _sql_.set_name_db(database_name)
-M_actual_salud  = _sql_.get_today_table()
+M_actual_salud  = _sql_.get_today_table("Salud")
+M_actual_pesaje = _sql_.get_today_table("Pesaje")
 _sql_.end_host()
-
 
 
 # Maquinaria constantes
@@ -40,24 +40,29 @@ def create_app():
     #logging.getLogger('werkzeug').setLevel(logging.ERROR)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + database_name + ".db"
     db.init_app(app)
-    testing_const = 1
 
     @app.route("/localtime")
-    def localtime():
+    def localtime_url():
         time_local = time.time()
         time.sleep(1)
         return f"{time_local}"
 
 
     @app.route("/salud/size")
-    def hello_world():
+    def salud_size_url():
         size = len(M_salud_ne.query.all())
+        number_packages = math.ceil(size / salud_package_size)
+        return f"{number_packages}"
+    
+    @app.route("/pesaje/size")
+    def pesaje_size_url():
+        size = len(M_pesaje_ne.query.all())
         number_packages = math.ceil(size / salud_package_size)
         return f"{number_packages}"
 
 
     @app.route('/salud/datos')
-    def specific_data():
+    def salud_data_url():
         # Si un dispositivo se conecta, otorgamos acceso a la base de datos y adicionalmente
         # seteamos la columna status como enviada, si se vuelve a solicitar, no se envia nada
         try:
@@ -82,7 +87,39 @@ def create_app():
             return (new_json)
         except Exception as e:
             return f"Error type = {e}"
+        
 
+
+    @app.route('/pesaje/datos')
+    def pesaje_data_url():
+        # Si un dispositivo se conecta, otorgamos acceso a la base de datos y adicionalmente
+        # seteamos la columna status como enviada, si se vuelve a solicitar, no se envia nada
+        try:
+            package_size = pesaje_package_size
+            limit = package_size
+            data = M_pesaje_ne.query.limit(limit).all()
+            msg_package = []
+
+            for row in data:
+                my_row_dictionary = row.to_dict()
+                new_pesaje_row = M_actual_pesaje(**my_row_dictionary)
+                my_row_dictionary['Cargadora']  = '777'
+                my_row_dictionary['Actividad']  = "Limpieza"
+                my_row_dictionary['Camion']     = "V3"
+                my_row_dictionary['Origen']     = "Tajo1"
+                msg_package.append(my_row_dictionary)
+                db.session.add(new_pesaje_row)
+            db.session.commit()
+            new_json = {
+                "idEmpresa" : id_empresa,
+                "idDispositivo" : mac,
+                "Cargadora" : id_maquina,
+                "registro" : msg_package
+            }
+            return (new_json)
+        except Exception as e:
+            return f"Error type = {e}"
+        
     return app
 
 

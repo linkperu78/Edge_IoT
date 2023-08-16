@@ -40,22 +40,47 @@ def create_model_salud_tpi(table_name):
     return SaludModel
 
 
+def create_model_pesaje(table_name):
+    # Define the model class dynamically
+    class PesajeTPIModel(db.Model):
+        __tablename__ = table_name
+        Id          = db.Column(db.Integer, nullable=False ,primary_key=True)
+        Fecha       = db.Column(db.String(30))
+        Producto    = db.Column(db.String(30))
+        Funcion     = db.Column(db.String(30))
+        Secuencia   = db.Column(db.Integer)
+        Peso        = db.Column(db.Float)
+
+        def to_dict(self):
+            return {
+            'Fecha'     : self.Fecha,
+            'Producto'  : self.Secuencia,
+            'Funcion'   : self.Funcion,
+            'Secuencia' : self.Secuencia,
+            'Peso'      : self.Peso,
+            }
+
+    return PesajeTPIModel
+
 
 def create_model_pesaje_tpi(table_name):
     # Define the model class dynamically
     class PesajeModel(db.Model):
         __tablename__ = table_name
         Id          = db.Column(db.Integer, nullable=False ,primary_key=True)
-        P           = db.Column(db.Float)
-        Secuencia   = db.Column(db.String(30))
-        F           = db.Column(db.String(30))
-        Fecha       = db.Column(db.Integer)
+        Fecha       = db.Column(db.String(30))
+        Producto    = db.Column(db.String(30))
+        Funcion     = db.Column(db.String(30))
+        Secuencia   = db.Column(db.Integer)
+        Peso        = db.Column(db.Float)
 
         def to_dict(self):
             return {
-            'P': self.P,
-            'Secuencia': self.Secuencia,
-            'F': self.F,
+            'Fecha'     : self.Fecha,
+            'Producto'  : self.Secuencia,
+            'Funcion'   : self.Funcion,
+            'Secuencia' : self.Secuencia,
+            'Peso'      : self.Peso,
             }
 
     return PesajeModel
