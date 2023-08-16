@@ -70,8 +70,8 @@ def create_app():
                 new_row = M_actual_salud()
                 new_row.F, new_row.P, new_row.I  = row.F, row.P, row.I
                 new_row.Fecha = int(row.F)
-                db.session.add(new_row)
-                db.session.delete(row)
+                #db.session.add(new_row)
+                #db.session.delete(row)
             db.session.commit()
             new_json = {
                 "idEmpresa" : id_empresa,

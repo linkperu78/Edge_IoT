@@ -6,6 +6,7 @@
 /focux_env/
 /build/
 /json_data/
+/json_values
 /templates/
 /instance/
 /__pycache__/
