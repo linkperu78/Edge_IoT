@@ -14,11 +14,12 @@ class sql_host():
         self.engine = SQL.create_engine(f"sqlite:///instance/{self.db_name}")
         Session = sessionmaker(bind = self.engine)
         self.session = Session()
+        print(f"Nombre de la base de dato = {name_db}\n")
 
     def create_db(self):
         if database_exists(self.engine.url):
             print(f"Database {self.db_name} : Already exists")
-            return 
+            return
         create_database(self.engine.url)
         print(f"Database {self.db_name} : Created")
 

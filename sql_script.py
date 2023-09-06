@@ -4,6 +4,7 @@ import datetime
 
 #init
 my_host_sql = sql.sql_host()
+name_db = "dato"
 
 test_salud  = Model.create_model_salud_tpi("salud")
 test_pesaje = Model.create_model_pesaje_tpi("pesaje")
@@ -22,11 +23,17 @@ new_data_pesaje = {
 }
 
 # instance/dato.db
-my_host_sql.set_name_db("dato")
+my_host_sql.set_name_db(name_db)
+#my_host_sql.create_db()
+
 
 #my_host_sql.delete_table(test_pesaje)
-#my_host_sql.create_table(test_pesaje)
-my_host_sql.insert_data(test_pesaje, new_data_pesaje)
 
-#my_host_sql.check_db()
+
+my_host_sql.create_table(test_salud)
+my_host_sql.create_table(test_pesaje)
+
+#my_host_sql.insert_data(test_pesaje, new_data_pesaje)
+
+my_host_sql.check_db()
 
