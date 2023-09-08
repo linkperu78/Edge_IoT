@@ -20,7 +20,7 @@ sql_data = json_reader.get_json_from_file("sql_names.json")
 database_name   = sql_data["name"]
 salud_sql       = sql_data["table_salud"]
 
-acelerador      = 20
+acelerador      = 1
 
 # Abrimos el puerto can0, el programa no avanzara si no se abre
 time.sleep(0.5)
@@ -134,17 +134,17 @@ def horometro(queue_horometro, queue_can):
 
             if elapse_time < freq_muestreo :
                 continue
-            print(f"Horometer: checking speed")
+            #print(f"Horometer: checking speed")
             prev_horometro_time = time.time()
             if (value_rpm < 550):
                 status_horometro = 0
             else:
                 status_horometro = 1
-            print(f"Horometer: {status_horometro}")
+            #print(f"Horometer: {status_horometro}")
             my_time = int(elapse_time)
             horometro_value["horometro"]    += my_time
             horometro_value["ralenti"]      += my_time * status_horometro
-            
+            print(horometro_value)
             # Aseguramos que hayan pasado 60 segundos
             elapse_time = actual_time - prev_save_file_time
             elapse_time = elapse_time * acelerador  
@@ -152,7 +152,7 @@ def horometro(queue_horometro, queue_can):
                 continue
             prev_save_file_time = prev_horometro_time
             timestamp_horometro = int( actual_time )
-            print(f"Horometer: Updating in json file")
+            #print(f"Horometer: Updating in json file")
             json_reader.save_in_json_file("horometer.json",horometro_value)
             resultado = {
                 'P'     : horometro_value["ralenti"],
