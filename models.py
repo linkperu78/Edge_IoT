@@ -54,7 +54,7 @@ def create_model_pesaje(table_name):
         def to_dict(self):
             return {
             'Fecha'     : self.Fecha,
-            'Producto'  : self.Secuencia,
+            'Producto'  : self.Producto,
             'Funcion'   : self.Funcion,
             'Secuencia' : self.Secuencia,
             'Peso'      : self.Peso,
@@ -77,7 +77,7 @@ def create_model_pesaje_tpi(table_name):
         def to_dict(self):
             return {
             'Fecha'     : self.Fecha,
-            'Producto'  : self.Secuencia,
+            'Producto'  : self.Producto,
             'Funcion'   : self.Funcion,
             'Secuencia' : self.Secuencia,
             'Peso'      : self.Peso,

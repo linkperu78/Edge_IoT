@@ -16,9 +16,9 @@ new_data = {
 new_data_pesaje = {
     "Producto"  : "Mineral",
     "Funcion"   : "Agregar",
-    "Secuencia" : 1,
-    "Peso"      : 5.02,
-    "Fecha"     : "2023-08-16 17:15:14",
+    "Secuencia" : 3,
+    "Peso"      : 2.02,
+    "Fecha"     : "2023-08-16 17:21:14",
 }
 
 # instance/dato.db

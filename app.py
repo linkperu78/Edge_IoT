@@ -7,6 +7,7 @@ import math
 import time
 import json_reader
 import sql_library as SQL
+import datetime
 
 # Loading data
 # Tabla Models
@@ -37,7 +38,7 @@ id_empresa              = initial_values["IdEmpresa"]
 
 def create_app():
     app = Flask(__name__)
-    #logging.getLogger('werkzeug').setLevel(logging.ERROR)
+    logging.getLogger('werkzeug').setLevel(logging.ERROR)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + database_name + ".db"
     db.init_app(app)
 
@@ -46,6 +47,13 @@ def create_app():
         time_local = time.time()
         time.sleep(1)
         return f"{time_local}"
+    
+    @app.route('/datetime')
+    def datetime_url():
+        epoch_time = time.time()
+        my_time = datetime.datetime.fromtimestamp(epoch_time)
+        my_time = my_time.strftime("%Y-%m-%d %H:%M:%S")
+        return f"{my_time}"
 
 
     @app.route("/salud/size")
@@ -75,8 +83,8 @@ def create_app():
                 new_row = M_actual_salud()
                 new_row.F, new_row.P, new_row.I  = row.F, row.P, row.I
                 new_row.Fecha = int(row.F)
-                #db.session.add(new_row)
-                #db.session.delete(row)
+                db.session.add(new_row)
+                db.session.delete(row)
             db.session.commit()
             new_json = {
                 "idEmpresa" : id_empresa,
@@ -126,3 +134,4 @@ def create_app():
 app = create_app()
 if __name__ == '__main__':
     app.run( host = "10.42.0.1", port = 5000 )
+    #app.run( host = "10.42.0.1")

@@ -1,4 +1,4 @@
-import ups
+import ups_lib as ups
 import time
 
 _DEFAULT_COUNT_MAX = 4
