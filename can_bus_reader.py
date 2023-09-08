@@ -134,13 +134,16 @@ def horometro(queue_horometro, queue_can):
 
             if elapse_time < freq_muestreo :
                 continue
+            print(f"Horometer: checking speed")
             prev_horometro_time = time.time()
-            if (value_rpm < 750):
+            if (value_rpm < 550):
                 status_horometro = 0
             else:
                 status_horometro = 1
-            horometro_value["horometro"]    += freq_muestreo
-            horometro_value["ralenti"]      += freq_muestreo * status_horometro
+            print(f"Horometer: {status_horometro}")
+            my_time = int(elapse_time)
+            horometro_value["horometro"]    += my_time
+            horometro_value["ralenti"]      += my_time * status_horometro
             
             # Aseguramos que hayan pasado 60 segundos
             elapse_time = actual_time - prev_save_file_time
@@ -149,6 +152,7 @@ def horometro(queue_horometro, queue_can):
                 continue
             prev_save_file_time = prev_horometro_time
             timestamp_horometro = int( actual_time )
+            print(f"Horometer: Updating in json file")
             json_reader.save_in_json_file("horometer.json",horometro_value)
             resultado = {
                 'P'     : horometro_value["ralenti"],
