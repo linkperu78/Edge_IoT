@@ -60,14 +60,11 @@ def leer_canbus(queue_can, queue_time, queue_horometro):
                 # _enable = 1 : Se habilito la publicacion por filtro
                 if _enable == 0 :
                     continue
-
                 value, tag = array_result
-                # Debemos evaluar si el tag RPM  es mayor a 800
+
+                # Pasamos el valor de RPMDeseado a task horometro
                 if ( tag == "RPMDeseado" ):
-                    if (value > 800):
-                        queue_horometro.put(1)
-                    else:
-                        queue_horometro.put(0)
+                    queue_horometro.put(value)
                 
                 resultado = {
                     'P'     : value,
@@ -116,44 +113,57 @@ def save_in_table(queue):
 def horometro(queue_horometro, queue_can):
     # Obtenemos el valor almacenado en un archivo .file
     horometro_value = json_reader.get_json_from_file("horometer.json")
-    status = 0
-    horometer_initial_time = int(time.time())
-    timestamp = horometer_initial_time
-    prev_elapse_time = 0
     # Comenzamos la supervision del horometro
+    prev_horometro_time = time.time()
+    prev_save_file_time = prev_horometro_time
+    actual_time = 0
+    status_horometro = 0
+    freq_muestreo = 1
+
     while True:
         try:
-            time.sleep(1)
-            new_time = int(time.time())
-            elapse_time = new_time - horometer_initial_time
+            if queue_horometro.empty():
+                time.sleep(0.1)
+                continue
+            value_rpm = queue_horometro.get()
+            actual_time = time.time()
+
+            # Aseguramos que haya pasado 1 segundo
+            elapse_time = actual_time - prev_horometro_time
             elapse_time = elapse_time * acelerador
 
-            if elapse_time % 60 == 0 and (elapse_time > prev_elapse_time):
-                json_reader.save_in_json_file("horometer.json",horometro_value)
-                resultado = {
-                    'P'     : horometro_value["ralenti"],
-                    "I"     : "Ralenti",
-                    "F"     : str(timestamp),
-                    "Fecha" : timestamp
-                }
-                queue_can.put(resultado) 
-                resultado = {
-                    'P'     : horometro_value["horometro"],
-                    "I"     : "Horometro",
-                    "F"     : str(timestamp),
-                    "Fecha" : timestamp
-                }
-                queue_can.put(resultado)
-                prev_elapse_time = elapse_time 
-            
-            if queue_horometro.empty():
-                horometro_value["horometro"] += 1
-                horometro_value["ralenti"] += status
+            if elapse_time < freq_muestreo :
                 continue
-
-            status = queue_horometro.get()
-            print(f"Status = {status}")
-            #time.sleep(1)
+            prev_horometro_time = time.time()
+            if (value_rpm < 750):
+                status_horometro = 0
+            else:
+                status_horometro = 1
+            horometro_value["horometro"]    += freq_muestreo
+            horometro_value["ralenti"]      += freq_muestreo * status_horometro
+            
+            # Aseguramos que hayan pasado 60 segundos
+            elapse_time = actual_time - prev_save_file_time
+            elapse_time = elapse_time * acelerador  
+            if elapse_time < 60 :
+                continue
+            prev_save_file_time = prev_horometro_time
+            timestamp_horometro = int( actual_time )
+            json_reader.save_in_json_file("horometer.json",horometro_value)
+            resultado = {
+                'P'     : horometro_value["ralenti"],
+                "I"     : "Ralenti",
+                "F"     : str(timestamp_horometro),
+                "Fecha" : timestamp_horometro
+            }
+            queue_can.put(resultado) 
+            resultado = {
+                'P'     : horometro_value["horometro"],
+                "I"     : "Horometro",
+                "F"     : str(timestamp_horometro),
+                "Fecha" : timestamp_horometro
+            }
+            queue_can.put(resultado)
 
         except Exception as e:
             print(f"Error en Horometro {e}")
@@ -188,7 +198,7 @@ if __name__ == "__main__":
         while True:
             msg = can0.recv( 2 )
             if msg is None:
-                time.sleep(2)
+                time.sleep(1)
                 continue
             timestamp, id_tag, data_str = can_lib.get_data_canbus( str(msg) )
             if not id_tag in my_list_id:
