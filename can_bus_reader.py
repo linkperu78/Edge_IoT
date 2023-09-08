@@ -57,14 +57,16 @@ def leer_canbus(queue_can, queue_time, queue_horometro):
             # Array de classes segun TAG
             for _class in array_class:
                 _enable, array_result = _class.values_to_pub(data_str, elapse_time)
-                # _enable = 1 : Se habilito la publicacion por filtro
-                if _enable == 0 :
-                    continue
                 value, tag = array_result
-
+                
                 # Pasamos el valor de RPMDeseado a task horometro
                 if ( tag == "RPMDeseado" ):
                     queue_horometro.put(value)
+
+                # _enable = 1 : Se habilito la publicacion por filtro
+                if _enable == 0 :
+                    continue
+                
                 resultado = {
                     'P'     : value,
                     "I"     : tag,
