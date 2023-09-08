@@ -24,16 +24,13 @@ new_data_pesaje = {
 
 # instance/dato.db
 my_host_sql.set_name_db(name_db)
+
 #my_host_sql.create_db()
-
-
 #my_host_sql.delete_table(test_pesaje)
-
-
-my_host_sql.create_table(test_salud)
-my_host_sql.create_table(test_pesaje)
+#my_host_sql.create_table(test_salud)
+#my_host_sql.create_table(test_pesaje)
 
 #my_host_sql.insert_data(test_pesaje, new_data_pesaje)
-
+#my_host_sql.delete_table("Pesaje_TPI_2023_08_18")
 my_host_sql.check_db()
 

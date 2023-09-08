@@ -25,7 +25,8 @@ M_pesaje_ne     = M.create_model_pesaje_tpi(pesaje_table_name)
 _sql_ = SQL.sql_host()
 _sql_.set_name_db(database_name)
 M_actual_salud  = _sql_.get_today_table("Salud")
-M_actual_pesaje = _sql_.get_today_table("Pesaje")
+
+#M_actual_pesaje = _sql_.get_today_table("Pesaje")
 _sql_.end_host()
 
 

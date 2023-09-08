@@ -138,7 +138,7 @@ def horometro(queue_horometro, queue_can):
                 continue
             #print(f"Horometer: checking speed")
             prev_horometro_time = time.time()
-            if (value_rpm < 550):
+            if (value_rpm < 795):
                 status_horometro = 0
             else:
                 status_horometro = 1
