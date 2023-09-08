@@ -15,7 +15,7 @@ source focux_env/bin/activate
 
 #filename=$(basename "$O" .sh)
 
-filename="my_test_can"
+filename="can_bus_reader"
 py_filename="$filename.py"
 
 
