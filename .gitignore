@@ -6,11 +6,10 @@
 /focux_env/
 /build/
 /json_data/
-json_values/
+#json_values/
 /templates/
-/instance/
 /__pycache__/
-scripts/
+#scripts/
 
 # Ignore log files
 *.log
