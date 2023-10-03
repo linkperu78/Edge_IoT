@@ -10,6 +10,18 @@ fi
 cd ~
 cd Desktop/
 
+	# Update the package list
+apt-get update
+
+	# Upgrade installed packages
+apt-get upgrade -y
+
+	# Install nano editor
+apt-get install -y nano
+
+	# Install DMKS
+apt-get install -y dkms
+
 	# Clonning the driver for wifi
 git clone https://github.com/aircrack-ng/rtl8812au.git
 cd rtl8812au
