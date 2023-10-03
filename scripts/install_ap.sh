@@ -6,6 +6,9 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
+	# Enable the abort mode
+set -e
+
 	# Move to the work folder
 cd ~
 cd Desktop/

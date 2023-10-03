@@ -5,6 +5,8 @@ if [[ $EUID -ne 0 ]]; then
     echo "This script must be run as root. Use 'sudo $0'." 1>&2
     exit 1
 fi
+	# Enable the abort mode
+set -e
 
 	# Move to the work folder
 cd ~
