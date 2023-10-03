@@ -19,9 +19,6 @@ apt-get upgrade -y
 	# Install nano editor
 apt-get install -y nano
 
-	# Install DMKS
-apt-get install -y dkms
-
 	# Install python 3.8
 apt-get install -y python3.8
 apt-get install -y python3.8-venv
