@@ -116,6 +116,18 @@ class sql_host():
         Model.__table__.drop(self.engine)
 
 
+    def delete_all_tables(self):
+        metadata = SQL.MetaData()
+        metadata.reflect(bind = self.engine)
+        inspector = SQL.inspect(self.engine)
+        table_names = inspector.get_table_names()
+
+        for table_name in table_names:
+            table = metadata.tables.get(table_name)
+            if table is not None:
+                table.drop(self.engine)
+
+
     # Finalizamos el host
     def end_host(self):
         self.engine.dispose()

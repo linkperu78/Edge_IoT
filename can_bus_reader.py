@@ -92,7 +92,7 @@ def save_in_table(queue):
     while True:
         try:
             resultado = queue.get( timeout = 5 )
-            print(f"Guardando: {resultado}")
+            #print(f"Guardando: {resultado}")
             time_now = int( time.time() )
             if( time_now - time_prev ) > 1:
                 time_prev = time_now
@@ -146,7 +146,7 @@ def horometro(queue_horometro, queue_can):
             my_time = int(elapse_time)
             horometro_value["horometro"]    += my_time
             horometro_value["ralenti"]      += my_time * status_horometro
-            print(horometro_value)
+            #print(horometro_value)
             # Aseguramos que hayan pasado 60 segundos
             elapse_time = actual_time - prev_save_file_time
             elapse_time = elapse_time * acelerador  

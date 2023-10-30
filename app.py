@@ -56,6 +56,10 @@ def create_app():
         my_time = my_time.strftime("%Y-%m-%d %H:%M:%S")
         return f"{my_time}"
 
+    @app.route("/salud/total")
+    def salud_size_total_url():
+        size = len(M_salud_ne.query.all())
+        return f"{size}"
 
     @app.route("/salud/size")
     def salud_size_url():
@@ -84,8 +88,8 @@ def create_app():
                 new_row = M_actual_salud()
                 new_row.F, new_row.P, new_row.I  = row.F, row.P, row.I
                 new_row.Fecha = int(row.F)
-                db.session.add(new_row)
-                db.session.delete(row)
+                #db.session.add(new_row)
+                #db.session.delete(row)
             db.session.commit()
             new_json = {
                 "idEmpresa" : id_empresa,
@@ -134,5 +138,7 @@ def create_app():
 
 app = create_app()
 if __name__ == '__main__':
-    app.run( host = "10.42.0.1", port = 5000 )
-    #app.run( host = "10.42.0.1")
+    time.sleep(4)     # Wait until the device starts its Access Point
+    #app.run( host = "10.42.0.1", port = 5000 )
+    app.run( host = "10.42.0.1")
+    #app.run( host = "192.168.18.58", port = 5000 )

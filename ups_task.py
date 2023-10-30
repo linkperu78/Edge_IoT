@@ -1,7 +1,7 @@
 import ups_lib as ups
 import time
 
-_DEFAULT_COUNT_MAX = 4
+_DEFAULT_COUNT_MAX = 30
 
 if __name__ == '__main__':
     print("Iniciamos el supervisor de bateria")
