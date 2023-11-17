@@ -1,11 +1,7 @@
 import ups_lib as ups
 import time
 
-# When the CAT machine is shutdown, the keep alive with this counter
-# a certain time equal to = (_DEFAULT_COUNT_MAX + 1) * _WINDOW_TICK seconds
-# Reason: just in case the operator stop the machine accidentally
-_DEFAULT_COUNT_MAX  = 100
-_WINDOW_TICK        = 2
+_DEFAULT_COUNT_MAX = 60
 
 # Main program
 if __name__ == '__main__':
