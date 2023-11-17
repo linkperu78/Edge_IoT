@@ -4,7 +4,7 @@ def create_model_salud(table_name):
     # Define the model class dynamically
     class MyTPIModel(db.Model):
         __tablename__ = table_name
-        Id      = db.Column(db.Integer, nullable=False ,primary_key=True)
+        Id      = db.Column(db.Integer, primary_key=True, autoincrement=True)
         P       = db.Column(db.Float)
         I       = db.Column(db.String(30))
         F       = db.Column(db.String(30))

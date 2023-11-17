@@ -1,0 +1,39 @@
+# Do this after git clone the repository
+# Go into Edge_IoT folder
+# Create a folder called "instance"
+
+
+sudo apt-get update
+sudo apt-get upgrade
+
+
+sudo apt install python3.8
+sudo apt-get install python3.8-venv
+python3.8 -m venv focux_env
+
+# Post activate focux_env
+python -m pip install --upgrade pip
+
+# Instalamos todas las librerias de python requeridas
+
+// asdasd
+
+# Despues de instalar las librerias, tenemos que crear la base de datos y la tabla de salud y pesaje
+
+# Ahora necesitamos configurar el hotspot en la jetson
+git clone https://github.com/aircrack-ng/rtl8812au.git
+cd rtl8812au
+sudo make dkms_install
+** wait 2 minutes
+sudo nmcli con add type wifi ifname wlan0 con-name ESP-AP autoconnect yes ssid ESP-AP
+sudo nmcli con modify ESP-AP 802-11-wireless.mode ap 802-11-wireless.band bg ipv4.method shared
+sudo nmcli con modify ESP-AP wifi-sec.key-mgmt wpa-psk
+sudo nmcli con modify ESP-AP wifi-sec.psk "123456789"
+sudo nmcli con up ESP-AP
+
+
+
+
+
+
+

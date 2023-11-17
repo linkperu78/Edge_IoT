@@ -1,6 +1,14 @@
+'''
+Codigo base para esta funcion:
+    https://www.waveshare.com/wiki/UPS_Power_Module
+
+    
+Note:   Instead of [smbus], this code use [smbus2]
+        We will use [subprocess] to execute commands instead of [os].
+    '''
+
 import subprocess
 from smbus2 import SMBus
-
 
 # Config Register (R/W)
 _REG_CONFIG                 = 0x00
@@ -115,13 +123,17 @@ class INA219:
         return value * self._current_lsb
 
 
+## Here start custom code
+
+# Thos function power off the device
 def shut_down():
     # Shutdown the device
     password = "focux"
     sudo_command = 'echo "focux" | sudo -S shutdown -h now'
     subprocess.call(sudo_command, shell=True)
 
-
+# This function end services
+# Just for testing, dont use actually
 def end_service(name):
     name_service = name + "_task.service"
     command = "sudo systemctl stop" +  str(name_service)

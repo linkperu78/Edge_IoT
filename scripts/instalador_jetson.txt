@@ -1,0 +1,18 @@
+move to /env/bin
+"sudo ./pip install --upgrade pip"
+
+sudo chown -R jetson-03 focux_env/
+pip install python-can
+pip install flask
+pip install flask-sqlalchemy
+pip install smbus2
+pip install Jetson.GPIO
+
+
+// TO install GPIO
+sudo chmod g+rw /dev/gpiochip0
+sudo nano /etc/udev/rules.d/99-gpio.rules
+SUBSYSTEM=="gpio", KERNEL=="gpiochip*", GROUP="gpio", MODE="0660"
+
+// Reboot the system
+

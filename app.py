@@ -25,12 +25,11 @@ M_pesaje_ne     = M.create_model_pesaje_tpi(pesaje_table_name)
 _sql_ = SQL.sql_host()
 _sql_.set_name_db(database_name)
 M_actual_salud  = _sql_.get_today_table("Salud")
-
-#M_actual_pesaje = _sql_.get_today_table("Pesaje")
+M_actual_pesaje = _sql_.get_today_table("Pesaje")
 _sql_.end_host()
 
 
-# Maquinaria constantes
+# Maquinaria constantespi
 initial_values          = json_reader.get_json_from_file("machine_values.json")
 mac                     = initial_values["MAC"]
 id_maquina              = initial_values["Cargadora"]
@@ -63,12 +62,6 @@ def create_app():
         number_packages = math.ceil(size / salud_package_size)
         return f"{number_packages}"
     
-    @app.route("/pesaje/size")
-    def pesaje_size_url():
-        size = len(M_pesaje_ne.query.all())
-        number_packages = math.ceil(size / salud_package_size)
-        return f"{number_packages}"
-
 
     @app.route('/salud/datos')
     def salud_data_url():
@@ -97,42 +90,11 @@ def create_app():
         except Exception as e:
             return f"Error type = {e}"
         
-
-
-    @app.route('/pesaje/datos')
-    def pesaje_data_url():
-        # Si un dispositivo se conecta, otorgamos acceso a la base de datos y adicionalmente
-        # seteamos la columna status como enviada, si se vuelve a solicitar, no se envia nada
-        try:
-            package_size = pesaje_package_size
-            limit = package_size
-            data = M_pesaje_ne.query.limit(limit).all()
-            msg_package = []
-
-            for row in data:
-                my_row_dictionary = row.to_dict()
-                new_pesaje_row = M_actual_pesaje(**my_row_dictionary)
-                my_row_dictionary['Cargadora']  = '777'
-                my_row_dictionary['Actividad']  = "Limpieza"
-                my_row_dictionary['Camion']     = "V3"
-                my_row_dictionary['Origen']     = "Tajo1"
-                msg_package.append(my_row_dictionary)
-                db.session.add(new_pesaje_row)
-            db.session.commit()
-            new_json = {
-                "idEmpresa" : id_empresa,
-                "idDispositivo" : mac,
-                "Cargadora" : id_maquina,
-                "registro" : msg_package
-            }
-            return (new_json)
-        except Exception as e:
-            return f"Error type = {e}"
-        
     return app
 
 
+time.sleep(3)
 app = create_app()
 if __name__ == '__main__':
     app.run( host = "10.42.0.1", port = 5000 )
-    #app.run( host = "10.42.0.1")
+    

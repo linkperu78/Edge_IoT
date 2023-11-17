@@ -2,13 +2,21 @@
 import sqlalchemy   as SQL
 from sqlalchemy_utils   import database_exists, create_database
 from sqlalchemy.orm     import sessionmaker
+
+# Models is for abreviating SQL request when it is needed to
+# make as input the format of the table or data
 import models as M
 import datetime
 
+# With this class, we will have a preparated
+# SQL hoster to make request using its functions
 class sql_host():
+    # When the sql_host is created
     def __init__(self):
         pass
     
+    # Set the direction of the database sql which we will use
+    # i.e. my_sql_database.db will set with: [sql_host.set_name_db("my_sql_database")]
     def set_name_db(self, name_db):
         self.db_name = name_db + ".db"
         self.engine = SQL.create_engine(f"sqlite:///instance/{self.db_name}")
@@ -16,6 +24,7 @@ class sql_host():
         self.session = Session()
         print(f"Nombre de la base de dato = {name_db}\n")
 
+    
     def create_db(self):
         if database_exists(self.engine.url):
             print(f"Database {self.db_name} : Already exists")
