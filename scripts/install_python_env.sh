@@ -36,3 +36,13 @@ cd focux_env/bin
 cd ~
 cd Desktop/Edge_IoT/scripts
 pip install -r packages.txt
+
+
+	# Configure GPIO for admin root
+# Modify permissions
+sudo chmod g+rw /dev/gpiochip0
+
+# Open the nano editor to create the udev rule file
+sudo nano /etc/udev/rules.d/99-gpio.rules <<EOF
+SUBSYSTEM=="gpio", KERNEL=="gpiochip*", GROUP="gpio", MODE="0660"
+EOF
