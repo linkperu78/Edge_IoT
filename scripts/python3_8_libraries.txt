@@ -1,6 +1,0 @@
-smbus2
-Jetson.GPIO
-flask
-flask_sqlalchemy
-SQLalchemy_utils
-python-can
