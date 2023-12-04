@@ -34,10 +34,7 @@ my_host_sql.create_table(test_salud)
 my_host_sql.create_table(test_pesaje)
 
 #my_host_sql.insert_data(test_pesaje, new_data_pesaje)
-<<<<<<< HEAD
-=======
 #my_host_sql.delete_table("Pesaje_TPI_2023_08_18")
->>>>>>> refs/remotes/origin/main
 
 my_host_sql.check_db()
 

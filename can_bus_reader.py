@@ -174,11 +174,7 @@ def horometro(queue_horometro, queue_can):
             my_time = int(elapse_time)
             horometro_value["horometro"]    += my_time
             horometro_value["ralenti"]      += my_time * status_horometro
-<<<<<<< HEAD
-            
-=======
             #print(horometro_value)
->>>>>>> refs/remotes/origin/main
             # Aseguramos que hayan pasado 60 segundos
             elapse_time = actual_time - prev_save_file_time
             elapse_time = elapse_time * acelerador  
