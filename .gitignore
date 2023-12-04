@@ -2,6 +2,8 @@
 *.pyc
 .venv
 
+/instance/dato.db
+
 # Ignore the entire "build" directory
 /focux_env/
 /build/
