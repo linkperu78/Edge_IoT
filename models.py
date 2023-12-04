@@ -1,7 +1,12 @@
 from extensions import db
+import json_reader
+
+data_tables_name = json_reader.get_json_from_file("sql_names.json")
+salud_no_enviados_name = data_tables_name["table_salud"]
+pesaje_no_enviados_name = data_tables_name["table_pesaje"]
 
 class pesaje_model(db.Model):
-    __tablename__ = "pesaje"
+    __tablename__ = pesaje_no_enviados_name
     Id          = db.Column(db.Integer, primary_key=True, autoincrement=True)
     Fecha       = db.Column(db.String(30))
     Producto    = db.Column(db.String(30))
@@ -31,7 +36,7 @@ class pesaje_backup_model(db.Model):
 
 
 class salud_model(db.Model):
-    __tablename__ = "salud"
+    __tablename__ = salud_no_enviados_name
     Id      = db.Column(db.Integer, nullable=False ,primary_key=True)
     P       = db.Column(db.Float)
     I       = db.Column(db.String(30))
