@@ -1,0 +1,164 @@
+{
+    "RPM": {
+        "Registro"  : [2],
+        "scale"     : 0.125,
+        "offset"    : 0, 
+        "freq"      : 30,
+        "chge"      : 250,
+        "max"       : 5000,
+        "min"       : 0
+    },
+    "RPMDeseado": {
+        "Registro"  : [3],
+        "scale"     : 0.125,
+        "offset"    : 0, 
+        "freq"      : 120,
+        "chge"      : 250,
+        "max"       : 5000,
+        "min"       : 0
+    },
+    "TorqueActual": {
+        "Registro"  : [4],
+        "scale"     : 1,
+        "offset"    : -125, 
+        "freq"      : 60,
+        "chge"      : 2,
+        "max"       : 125,
+        "min"       : 0
+    },
+    "PTorque": {
+        "Registro"  : [5],
+        "scale"     : 1,
+        "offset"    : -125, 
+        "freq"      : 120,
+        "chge"      : 6,
+        "max"       : 125,
+        "min"       : -125
+    },
+    "Fcarga": {
+        "Registro"  : [6],
+        "scale"     : 1,
+        "offset"    : 0, 
+        "freq"      : 120,
+        "chge"      : 6,
+        "max"       : 125,
+        "min"       : 0
+    },
+    "Acelerador": {
+        "Registro"  : [7],
+        "scale"     : 0.4,
+        "offset"    : 0, 
+        "freq"      : 60,
+        "chge"      : 5,
+        "max"       : 100,
+        "min"       : 0
+    },
+    "TAdmision": {
+        "Registro"  : [8],
+        "scale"     : 1,
+        "offset"    : -40, 
+        "freq"      : 600,
+        "chge"      : 10,
+        "max"       : 210,
+        "min"       : -40
+    },
+    "PAdmision": {
+        "Registro"  : [9],
+        "scale"     : 2,
+        "offset"    : 0, 
+        "freq"      : 60,
+        "chge"      : 10,
+        "max"       : 500,
+        "min"       : 0
+    },
+    "PSalida": {
+        "Registro"  : [10],
+        "scale"     : 2,
+        "offset"    : 0, 
+        "freq"      : 120,
+        "chge"      : 10,
+        "max"       : 500,
+        "min"       : 0
+    },
+    "CCombustible": {
+        "Registro"  : [11],
+        "scale"     : 0.5,
+        "offset"    : 0, 
+        "freq"      : 60,
+        "chge"      : 1,
+        "max"       : 2105540607,
+        "min"       : 0
+    },
+    "PLubricante": {
+        "Registro"  : [12],
+        "scale"     : 4,
+        "offset"    : 0, 
+        "freq"      : 300,
+        "chge"      : 20,
+        "max"       : 1000,
+        "min"       : 100
+    },
+    "PCombustible": {
+        "Registro"  : [13],
+        "scale"     : 4,
+        "offset"    : 0, 
+        "freq"      : 300,
+        "chge"      : 10,
+        "max"       : 1000,
+        "min"       : 0
+    },
+    "PAtmosferica": {
+        "Registro"  : [14],
+        "scale"     : 0.5,
+        "offset"    : 0, 
+        "freq"      : 600,
+        "chge"      : 0.5,
+        "max"       : 125,
+        "min"       : 0
+    },
+    "Voltaje": {
+        "Registro"  : [15],
+        "scale"     : 0.05,
+        "offset"    : 0, 
+        "freq"      : 1200,
+        "chge"      : 0.2,
+        "max"       : 2000,
+        "min"       : 15
+    },
+    "TCombustible": {
+        "Registro"  : [16],
+        "scale"     : 1,
+        "offset"    : -40, 
+        "freq"      : 300,
+        "chge"      : 10,
+        "max"       : 210,
+        "min"       : -40
+    },
+    "TLubricante": {
+        "Registro"  : [17],
+        "scale"     : 0.03125,
+        "offset"    : -273, 
+        "freq"      : 300,
+        "chge"      : 10,
+        "max"       : 2000,
+        "min"       : -273
+    },
+    "TRefrigerante": {
+        "Registro"  : [18],
+        "scale"     : 1,
+        "offset"    : -40, 
+        "freq"      : 1200,
+        "chge"      : 10,
+        "max"       : 210,
+        "min"       : -40
+    },
+    "QCombustible": {
+        "Registro"  : [19],
+        "scale"     : 0.05,
+        "offset"    : 0, 
+        "freq"      : 120,
+        "chge"      : 2,
+        "max"       : 3212,
+        "min"       : 0
+    }
+}
