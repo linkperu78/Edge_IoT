@@ -11,7 +11,8 @@ ser = serial.Serial(
     timeout=1
 )
 
-rs485_dictionary = rs485.cdl_rs485("Hola")
+path_json_data = "json_values/parameters"
+rs485_dictionary = rs485.cdl_rs485(path_json_data)
 data_byte = rs485_dictionary.rs485_request(1,0,11)
 
 try:

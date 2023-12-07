@@ -32,9 +32,10 @@ def convert_decimal_hexarray(decimal_value : int):
 
 
 class cdl_rs485:
-    def __init__(self, name):
-        self.name = name
-
+    def __init__(self, json_path : str):
+        self.path = json_path
+        self.dictionary_class = self.
+        
     def crc_rs485_calculator(self, byte_message):
         def invert_2_bytes(hex_2_bytes):
             first_byte = hex_2_bytes % 256
