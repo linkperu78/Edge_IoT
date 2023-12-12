@@ -32,16 +32,20 @@ def convert_decimal_hexarray(decimal_value : int):
 
 
 class cdl_rs485:
-    def __init__(self, json_path : str):
-        self.path = json_path
-        self.dictionary_class = self.
-        
+    def __init__(self, json_file : str):
+        self.r1300g_dictionary  = get_json_from_file(json_file)
+
+    def get_array_id(self):
+        return self.r1300g_dictionary.keys()
+
+    def  create_dictionary_time():
+        return
+
     def crc_rs485_calculator(self, byte_message):
         def invert_2_bytes(hex_2_bytes):
             first_byte = hex_2_bytes % 256
             second_byte =  int (hex_2_bytes / 256)
             return first_byte * 256 + second_byte 
-
         crc = 0xFFFF  # Initial value for CRC-16
         for byte in byte_message:
             pos_table = ( byte ^ crc ) & 0xFF
@@ -59,5 +63,7 @@ class cdl_rs485:
         rs485_message   += convert_decimal_hexarray(self.crc_rs485_calculator(rs485_message))
         return rs485_message
         
+
+
 
 
