@@ -38,8 +38,17 @@ class cdl_rs485:
     def get_array_id(self):
         return self.r1300g_dictionary.keys()
 
-    def  create_dictionary_time():
-        return
+    def get_basic_dictionary(self):
+        new_dictionary = {}
+        my_keys_array = self.get_array_id()
+        for key in my_keys_array:
+            freq_new = self.r1300g_dictionary[key]["freq"]
+            register = self.r1300g_dictionary[key]["Registro"]
+            new_dictionary[key] = {
+                "freq" : freq_new,
+                "reg"  : register
+            }
+        return new_dictionary
 
     def crc_rs485_calculator(self, byte_message):
         def invert_2_bytes(hex_2_bytes):
@@ -52,7 +61,6 @@ class cdl_rs485:
             crc = int(crc / 256)
             crc ^= crc16_table[pos_table]
         return invert_2_bytes(crc)  # Ensure CRC-16 is a 16-bit value
-
 
     def rs485_request(self, id_dispositivo : int, registro_inicio : int, registo_final : int ):
         rs485_message   = [id_dispositivo]

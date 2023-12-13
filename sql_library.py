@@ -61,7 +61,7 @@ class sql_host():
     # Ingresamos un nuevo dato a la tabla usando el MODEL
     def insert_data(self, Model, data_dictionary):
         try:
-            #print(f"Data a ingresar = {data_dictionary}\n")
+            print(f"Data a ingresar = {data_dictionary}\n")
             self.session.add(Model(**data_dictionary))
             self.session.commit()
             #print(f"{Model.__tablename__} : {data_dictionary}")
