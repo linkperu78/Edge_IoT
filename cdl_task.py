@@ -2,24 +2,28 @@
 import  rs485_lib as rs485
 import  serial
 
+
 ## Librerias para multi tarea
 from    multiprocessing import Process, Queue
-import  queue
-import  traceback
+#import  queue
+#import  traceback
 from    time import time, sleep
 
 ## Librerias para SQL
 import models as MODEL
 import sql_library as SQL
 
-## ONLY change for testing, in production must be "1"
-MULTIPLIER_TIME = 3
 
+## Libreria para uso de los GPIO del Jetson
+import gpio_functions as gp
+
+
+## ONLY change for testing, in production must be "1"
+MULTIPLIER_TIME = 1
 
 ## Upload the data for SQL database
 sql_dictionary      = rs485.get_json_from_file("sql_names.json")
 database_name       = sql_dictionary["name"]
-
 
 ## Path for R1300 CAT Data Link parameters ( scale, offset, ID register, etc)
 ## Upload the data for read CDL data
@@ -27,13 +31,32 @@ json_file           = "parameters.json"
 rs485_class         = rs485.cdl_rs485(json_file)
 array_keys_id       = rs485_class.get_array_id()
 dictionary_for_eval = rs485_class.get_basic_dictionary()
+green_led           = sql_dictionary["Led"]
 
 ## Tarea para hacer blink en el led
 def led_green_blink(cola_led_verde):
-    pass
+    gp.set_code_utf()
+    gp.gpio_output(green_led)
+    gp.on_pin(green_led)
+    prev_time = int( time() )
+    status = 1
+    while True:
+        try:
+            if cola_led_verde.empty():
+                sleep(0.1)
+                continue
+            blink = cola_led_verde.get()
+            actual_time = int ( time() )
+            if ( actual_time - prev_time > 1):
+                status != status
+                gp.blink(green_led, status)
+            prev_time = actual_time
+        except Exception as e:
+            print(e)
+
 
 ## Funcion para tarea de guardar datos en la base de datos SQL
-def task_update_database(cola_sql, class_cdl):
+def task_update_database(cola_sql, cola_led, class_cdl):
     salud_table_model = MODEL.salud_model
     time_prev   = int( time() )
     sql_host    = SQL.sql_host()
@@ -80,19 +103,21 @@ def task_update_database(cola_sql, class_cdl):
                     "I" : key,
                 }
                 sql_host.insert_data(salud_table_model, json_for_save)
+            cola_led.put("blink")
 
         except Exception as e:
             print(f"Error ocurrido en save_in_table: {e}")
 
 
+
 if __name__ == "__main__":
-    
     queue_sql   = Queue()
     queu_led    = Queue()
-    process_1   = Process(target = task_update_database, args = (queue_sql, rs485_class) )
-    #process_2   = Process(target = led_green_blink, args = (queu_led, ) )
+    process_1   = Process(target = task_update_database, args = (queue_sql, queu_led, rs485_class) )
+    process_2   = Process(target = led_green_blink, args = (queu_led, ) )
+    # ----------------------------------------------- #
     process_1.start()
-    #process_2.start()
+    process_2.start()
 
     ## Variables de tiempo para frecuencia
     actual_time         = int(time()) - 1
@@ -105,16 +130,17 @@ if __name__ == "__main__":
         port_rs485 = serial.Serial(
             port='/dev/ttyUSB0',    ## For Jetson Nano
             #port = 'COM6',          ## For Windows
-            baudrate=9600,
+            baudrate    =9600,
             ## Default values for Serial         
-            parity=serial.PARITY_NONE,
-            stopbits=serial.STOPBITS_ONE,
-            bytesize=serial.EIGHTBITS,
-            timeout=1
+            parity      =serial.PARITY_NONE,
+            stopbits    =serial.STOPBITS_ONE,
+            bytesize    =serial.EIGHTBITS,
+            timeout     =1
         )
 
         while True:
             actual_time = int(time())
+            ## Cuando tiempo ha pasado  : elapse_time
             elapse_time = int ( (actual_time - init_time) * MULTIPLIER_TIME )
             if (elapse_time == prev_elapse_time):
                 sleep(0.5)
@@ -148,15 +174,13 @@ if __name__ == "__main__":
                     cdl_response = data.hex()
                     data_to_send_sql = [array_id_request_rs485, min_value, data[3:-2]]
                     queue_sql.put(data_to_send_sql) 
-
             prev_elapse_time = elapse_time
-            sleep(0.1)
    
     except KeyboardInterrupt:
         ## Detener todas las tareas cuando se cancela el script
         ## con "CTRL + C"
         process_1.terminate()
-        #process_2.terminate()
+        process_2.terminate()
         process_1.join()
-        #process_2.join()
+        process_2.join()
         print("Tareas finalizadas")

@@ -3,5 +3,6 @@
     "table_salud"   : "salud",
     "table_pesaje"  : "pesaje",
     "salud_size"    : "300",
-    "pesaje_size"   : "50" 
+    "pesaje_size"   : "50" ,
+    "Led"           : 24
 }
